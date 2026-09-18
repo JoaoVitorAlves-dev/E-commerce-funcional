@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import med.voll.ecommerce.domain.StatusPedido;
+import med.voll.ecommerce.domain.enums.StatusPedido;
 
 import java.time.LocalDate;
 

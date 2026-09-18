@@ -1,4 +1,4 @@
-package med.voll.ecommerce.domain;
+package med.voll.ecommerce.domain.enums;
 
 public enum StatusPedido {
 

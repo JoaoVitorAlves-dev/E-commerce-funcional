@@ -1,9 +1,11 @@
 package med.voll.ecommerce.dto.response;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import med.voll.ecommerce.entity.Produto;
 
-public record ProdutoResponse(@NotNull Long id,
-                              @NotBlank String nome,
-                              @NotNull Double preco) {
+public record ProdutoResponse(Long id, String nome, Double preco) {
+
+    public ProdutoResponse(Produto produto) {
+        this(produto.getId(), produto.getNome(), produto.getPreco());
+    }
+
 }

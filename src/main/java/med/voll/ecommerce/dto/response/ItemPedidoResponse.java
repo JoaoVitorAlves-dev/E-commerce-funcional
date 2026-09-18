@@ -1,10 +1,11 @@
 package med.voll.ecommerce.dto.response;
 
-import jakarta.validation.constraints.NotNull;
+import med.voll.ecommerce.entity.ItemPedido;
 
-public record ItemPedidoResponse(@NotNull Long id,
-                                 @NotNull Long pedidoId,
-                                 @NotNull Long produtoId,
-                                 @NotNull Integer quantidade,
-                                 @NotNull Integer precoUnitario) {
+public record ItemPedidoResponse(Long id, Long pedidoId, Long produtoId, Integer quantidade, Integer precoUnitario) {
+
+    public ItemPedidoResponse(ItemPedido itemPedido) {
+        this(itemPedido.getId(), itemPedido.getId(), itemPedido.getProduto().getId(), itemPedido.getQuantidade(), itemPedido.getPrecoUnitario());
+    }
+
 }

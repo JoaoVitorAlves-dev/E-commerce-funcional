@@ -7,4 +7,5 @@ public record ClienteRequest(@NotBlank String nome,
                              @NotBlank @Email String email,
                              @NotBlank String senha,
                              @NotBlank String telefone) {
+
 }

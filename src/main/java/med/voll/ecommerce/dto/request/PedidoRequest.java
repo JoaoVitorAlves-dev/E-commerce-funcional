@@ -1,7 +1,7 @@
 package med.voll.ecommerce.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import med.voll.ecommerce.domain.StatusPedido;
+import med.voll.ecommerce.domain.enums.StatusPedido;
 
 import java.time.LocalDate;
 
