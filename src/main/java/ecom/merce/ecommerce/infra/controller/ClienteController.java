@@ -3,6 +3,7 @@ package ecom.merce.ecommerce.infra.controller;
 import ecom.merce.ecommerce.domain.service.ClienteService;
 import ecom.merce.ecommerce.dto.request.ClienteRequest;
 import ecom.merce.ecommerce.dto.response.ClienteResponse;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,11 +25,13 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.listar(pageable));
     }
 
+    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(clienteService.buscarPorId(id));
     }
 
+    @Transactional
     @PostMapping
     public ResponseEntity<ClienteResponse> adicionarCliene(@RequestBody @Valid ClienteRequest clienteRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.adicionarCliente(clienteRequest));
@@ -39,6 +42,7 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.atualizarCliente(id, clienteRequest));
     }
 
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
         clienteService.deletarPorId(id);
