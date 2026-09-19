@@ -1,4 +1,6 @@
 package ecom.merce.ecommerce.dto.request;
 
-public record CategoriaRequest(String nome) {
+import jakarta.validation.constraints.NotBlank;
+
+public record CategoriaRequest(@NotBlank String nome) {
 }

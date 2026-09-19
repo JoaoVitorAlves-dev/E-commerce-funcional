@@ -1,4 +1,9 @@
 package ecom.merce.ecommerce.dto.request;
 
-public record EnderecoRequest(String rua, String cidade, String estado, String cep) {
+import jakarta.validation.constraints.NotBlank;
+
+public record EnderecoRequest(@NotBlank String rua,
+                              @NotBlank String cidade,
+                              @NotBlank String estado,
+                              @NotBlank String cep) {
 }
