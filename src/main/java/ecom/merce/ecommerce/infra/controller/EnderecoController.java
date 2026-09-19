@@ -4,6 +4,7 @@ import ecom.merce.ecommerce.domain.service.EnderecoService;
 import ecom.merce.ecommerce.dto.request.EnderecoRequest;
 import ecom.merce.ecommerce.dto.response.EnderecoResponse;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,13 +33,13 @@ public class EnderecoController {
 
     @Transactional
     @PostMapping
-    public ResponseEntity<EnderecoResponse> adicionarEndereco(@RequestBody EnderecoRequest enderecoRequest) {
+    public ResponseEntity<EnderecoResponse> adicionarEndereco(@RequestBody @Valid EnderecoRequest enderecoRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(enderecoService.adicionarEndereco(enderecoRequest));
     }
 
     @Transactional
     @PatchMapping("/{id}")
-    public ResponseEntity<EnderecoResponse> atualizarPorId(@PathVariable Long id, @RequestBody EnderecoRequest enderecoRequest) {
+    public ResponseEntity<EnderecoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid EnderecoRequest enderecoRequest) {
         return ResponseEntity.ok(enderecoService.atualizarPorId(id, enderecoRequest));
     }
 
@@ -46,7 +47,7 @@ public class EnderecoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
         enderecoService.deletarPorId(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
