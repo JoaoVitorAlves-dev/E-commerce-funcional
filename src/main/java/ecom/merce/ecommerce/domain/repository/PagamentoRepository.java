@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PagamentoRepository extends JpaRepository<Pagamento, Long> {
-    Page<Pagamento> findByValor(Pageable pageable);
+    Page<Pagamento> findAllBy(Pageable pageable);
 }

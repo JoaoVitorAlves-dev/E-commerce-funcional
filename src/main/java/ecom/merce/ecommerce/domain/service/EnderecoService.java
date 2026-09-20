@@ -19,7 +19,7 @@ public class EnderecoService {
     private final EnderecoRepository enderecoRepository;
 
     public Page<EnderecoResponse> listar(@PageableDefault(sort = "rua", size = 10) Pageable pageable) {
-        return enderecoRepository.findByRua(pageable).map(EnderecoResponse::new);
+        return enderecoRepository.findAllBy(pageable).map(EnderecoResponse::new);
     }
 
     public EnderecoResponse buscarPorId(Long id) {

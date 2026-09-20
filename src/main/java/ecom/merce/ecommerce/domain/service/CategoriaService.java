@@ -19,7 +19,7 @@ public class CategoriaService {
     private final CategoriaRepository categoriaRepository;
 
     public Page<CategoriaResponse> listar(@PageableDefault(sort = "nome", size = 10) Pageable pageable) {
-        return categoriaRepository.findByNome(pageable).map(CategoriaMapper::toDTO);
+        return categoriaRepository.findAllBy(pageable).map(CategoriaMapper::toDTO);
     }
 
     public CategoriaResponse buscarPorId(Long id) {

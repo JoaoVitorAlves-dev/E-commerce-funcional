@@ -22,7 +22,7 @@ public class PedidoService {
     private final ClienteRepository clienteRepository;
 
     public Page<PedidoResponse> listar(@PageableDefault(sort = "status") Pageable pageable) {
-        return pedidoRepository.findByStatus(pageable)
+        return pedidoRepository.findAllBy(pageable)
                 .map(PedidoResponse::new);
     }
 

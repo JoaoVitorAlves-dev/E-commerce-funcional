@@ -19,7 +19,7 @@ public class PagamentoService {
     private final PagamentoRepository pagamentoRepository;
 
     public Page<PagamentoResponse> listar(@PageableDefault(sort = "valor", size = 10) Pageable pageable) {
-        return pagamentoRepository.findByValor(pageable).map(PagamentoMapper::toDTO);
+        return pagamentoRepository.findAllBy(pageable).map(PagamentoMapper::toDTO);
     }
 
     public PagamentoResponse buscarPorId(Long id) {

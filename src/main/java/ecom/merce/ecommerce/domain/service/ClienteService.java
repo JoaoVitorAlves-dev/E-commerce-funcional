@@ -19,7 +19,7 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
 
     public Page<ClienteResponse> listar(@PageableDefault(sort = "nome") Pageable pageable) {
-        return clienteRepository.findByNome(pageable)
+        return clienteRepository.findAllBy(pageable)
                 .map(ClienteResponse::new);
     }
 

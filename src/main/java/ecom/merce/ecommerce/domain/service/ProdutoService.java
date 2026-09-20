@@ -21,8 +21,8 @@ public class ProdutoService {
     private final ProdutoRepository produtoRepository;
     private final CategoriaRepository categoriaRepository;
 
-    public Page<ProdutoResponse> listar(@PageableDefault(sort = "nome")Pageable pageable) {
-        return produtoRepository.findByNome(pageable).map(ProdutoResponse::new);
+    public Page<ProdutoResponse> listar(@PageableDefault(sort = "{nome}")Pageable pageable) {
+        return produtoRepository.findAllBy(pageable).map(ProdutoResponse::new);
     }
 
     public ProdutoResponse buscarPorId(Long id) {

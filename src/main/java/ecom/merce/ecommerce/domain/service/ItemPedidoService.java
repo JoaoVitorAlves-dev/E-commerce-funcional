@@ -25,7 +25,7 @@ public class ItemPedidoService {
     private final ProdutoRepository produtoRepository;
 
     public Page<ItemPedidoResponse> listar(@PageableDefault(sort = "quantidade") Pageable pageable) {
-        return itemPedidoRepository.findByQuantidade(pageable).map(ItemPedidoResponse::new);
+        return itemPedidoRepository.findAllBy(pageable).map(ItemPedidoResponse::new);
     }
 
     public ItemPedidoResponse buscarPorId(Long id) {
