@@ -1,8 +1,10 @@
 package ecom.merce.ecommerce.domain.service;
 
+import ecom.merce.ecommerce.domain.exceptions.CredenciaisInvalidasException;
 import ecom.merce.ecommerce.domain.exceptions.IdNotFoundException;
 import ecom.merce.ecommerce.domain.repository.ClienteRepository;
 import ecom.merce.ecommerce.dto.request.ClienteRequest;
+import ecom.merce.ecommerce.dto.request.LoginRequest;
 import ecom.merce.ecommerce.dto.response.ClienteResponse;
 import ecom.merce.ecommerce.entity.Cliente;
 import ecom.merce.ecommerce.mapper.ClienteMapper;
@@ -19,6 +21,19 @@ public class ClienteService {
 
     private final ClienteRepository clienteRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public ClienteResponse login(LoginRequest loginRequest) {
+        Cliente cliente = clienteRepository.findByEmail(loginRequest.email())
+                .orElseThrow(() -> new CredenciaisInvalidasException("Email ou senha inválidos"));
+
+        boolean senhaCorreta = passwordEncoder.matches(loginRequest.senha(), cliente.getSenha());
+
+        if (!senhaCorreta) {
+            throw new CredenciaisInvalidasException("Email ou senha inválidos");
+        }
+
+        return ClienteMapper.toDTO(cliente);
+    }
 
     public Page<ClienteResponse> listar(@PageableDefault(sort = "nome") Pageable pageable) {
         return clienteRepository.findAllBy(pageable)

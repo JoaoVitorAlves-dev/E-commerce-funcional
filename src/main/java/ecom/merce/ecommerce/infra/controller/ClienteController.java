@@ -2,6 +2,7 @@ package ecom.merce.ecommerce.infra.controller;
 
 import ecom.merce.ecommerce.domain.service.ClienteService;
 import ecom.merce.ecommerce.dto.request.ClienteRequest;
+import ecom.merce.ecommerce.dto.request.LoginRequest;
 import ecom.merce.ecommerce.dto.response.ClienteResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -35,6 +36,12 @@ public class ClienteController {
     @PostMapping
     public ResponseEntity<ClienteResponse> adicionarCliene(@RequestBody @Valid ClienteRequest clienteRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.adicionarCliente(clienteRequest));
+    }
+
+    @Transactional
+    @PostMapping("/login")
+    public ResponseEntity<ClienteResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+        return ResponseEntity.ok(clienteService.login(loginRequest));
     }
 
     @PatchMapping("/{id}")
