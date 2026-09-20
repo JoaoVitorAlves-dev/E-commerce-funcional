@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Page<ClienteResponse> listar(@PageableDefault(sort = "nome") Pageable pageable) {
         return clienteRepository.findAllBy(pageable)
@@ -29,7 +31,9 @@ public class ClienteService {
     }
 
     public ClienteResponse adicionarCliente(ClienteRequest clienteRequest) {
-        Cliente save = clienteRepository.save(ClienteMapper.toEntity(clienteRequest));
+        Cliente entity = ClienteMapper.toEntity(clienteRequest);
+        entity.setSenha(passwordEncoder.encode(clienteRequest.senha()));
+        Cliente save = clienteRepository.save(entity);
         return ClienteMapper.toDTO(save);
     }
 

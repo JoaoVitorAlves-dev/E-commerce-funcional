@@ -19,7 +19,7 @@ public class ClienteMapper {
 
     public ClienteResponse toDTO(Cliente cliente) {
         return new ClienteResponse(
-                cliente.getId(), cliente.getNome(), cliente.getEmail(), cliente.getSenha(), cliente.getTelefone()
+                cliente.getId(), cliente.getNome(), cliente.getEmail(), cliente.getTelefone()
         );
     }
 
