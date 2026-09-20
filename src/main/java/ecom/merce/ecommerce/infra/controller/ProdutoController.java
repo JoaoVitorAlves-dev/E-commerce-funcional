@@ -32,7 +32,7 @@ public class ProdutoController {
     }
 
     @Transactional
-    @PutMapping
+    @PostMapping
     public ResponseEntity<ProdutoResponse> adicionar(@RequestBody @Valid ProdutoRequest produtoRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(produtoService.adicionarProduto(produtoRequest));
     }
@@ -47,7 +47,7 @@ public class ProdutoController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
         produtoService.deletarPorId(id);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }

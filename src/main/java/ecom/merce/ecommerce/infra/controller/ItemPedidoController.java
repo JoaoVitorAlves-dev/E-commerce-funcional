@@ -32,7 +32,7 @@ public class ItemPedidoController {
     }
 
     @Transactional
-    @PutMapping
+    @PostMapping
     public ResponseEntity<ItemPedidoResponse> adicionarItemPedido(@RequestBody @Valid ItemPedidoRequest itemPedidoRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(itemPedidoService.adicionarItemPedido(itemPedidoRequest));
     }

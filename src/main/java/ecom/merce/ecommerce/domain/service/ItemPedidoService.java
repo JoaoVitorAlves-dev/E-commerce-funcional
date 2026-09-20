@@ -41,11 +41,13 @@ public class ItemPedidoService {
     }
 
     public ItemPedidoResponse atualizarPorId(Long id, ItemPedidoRequest itemPedidoRequest) {
+        itemPedidoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
         Pedido pedido = pedidoRepository.findById(itemPedidoRequest.pedidoId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
         Produto produto = produtoRepository.findById(itemPedidoRequest.produtoId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
         ItemPedido entity = ItemPedidoMapper.toEntity(itemPedidoRequest, pedido, produto);
         entity.setId(id);
-        return ItemPedidoMapper.toDTO(entity);
+        ItemPedido save = itemPedidoRepository.save(entity);
+        return ItemPedidoMapper.toDTO(save);
     }
 
     public void deletarPorId(Long id) {

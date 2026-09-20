@@ -21,7 +21,7 @@ public class ProdutoService {
     private final ProdutoRepository produtoRepository;
     private final CategoriaRepository categoriaRepository;
 
-    public Page<ProdutoResponse> listar(@PageableDefault(sort = "{nome}")Pageable pageable) {
+    public Page<ProdutoResponse> listar(@PageableDefault(sort = "nome")Pageable pageable) {
         return produtoRepository.findAllBy(pageable).map(ProdutoResponse::new);
     }
 
