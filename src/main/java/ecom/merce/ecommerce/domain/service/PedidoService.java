@@ -38,7 +38,9 @@ public class PedidoService {
     }
 
     public PedidoResponse atualizarPorId(Long id, PedidoRequest pedidoRequest) {
-        Pedido pedido = pedidoRepository.findById(pedidoRequest.clienteId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+        pedidoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+        Cliente cliente = clienteRepository.findById(pedidoRequest.clienteId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+        Pedido pedido = PedidoMapper.toEntity(pedidoRequest, cliente);
         pedido.setId(id);
         Pedido save = pedidoRepository.save(pedido);
         return PedidoMapper.toDTO(save);

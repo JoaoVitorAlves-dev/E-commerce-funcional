@@ -40,7 +40,7 @@ public class ItemPedidoController {
     @Transactional
     @PatchMapping("/{id}")
     public ResponseEntity<ItemPedidoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid ItemPedidoRequest itemPedidoRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(itemPedidoService.atualizarPorId(id, itemPedidoRequest));
+        return ResponseEntity.status(HttpStatus.OK).body(itemPedidoService.atualizarPorId(id, itemPedidoRequest));
     }
 
     @Transactional
