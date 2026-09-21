@@ -1,5 +1,6 @@
 package ecom.merce.ecommerce.domain.service;
 
+import ecom.merce.ecommerce.domain.exceptions.EstoqueInsuficienteException;
 import ecom.merce.ecommerce.domain.exceptions.IdNotFoundException;
 import ecom.merce.ecommerce.domain.repository.ItemPedidoRepository;
 import ecom.merce.ecommerce.domain.repository.PedidoRepository;
@@ -36,21 +37,38 @@ public class ItemPedidoService {
     public ItemPedidoResponse adicionarItemPedido(ItemPedidoRequest itemPedidoRequest) {
         Pedido pedido = pedidoRepository.findById(itemPedidoRequest.pedidoId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
         Produto produto = produtoRepository.findById(itemPedidoRequest.produtoId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+        if (produto.getEstoque() < itemPedidoRequest.quantidade()) {
+            throw new EstoqueInsuficienteException("Estoque Insuficiente");
+        }
+        produto.setEstoque(produto.getEstoque() - itemPedidoRequest.quantidade());
+        produtoRepository.save(produto);
         ItemPedido save = itemPedidoRepository.save(ItemPedidoMapper.toEntity(itemPedidoRequest, pedido, produto));
         return ItemPedidoMapper.toDTO(save);
     }
 
     public ItemPedidoResponse atualizarPorId(Long id, ItemPedidoRequest itemPedidoRequest) {
-        itemPedidoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+        ItemPedido itemPedido = itemPedidoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
         Pedido pedido = pedidoRepository.findById(itemPedidoRequest.pedidoId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
-        Produto produto = produtoRepository.findById(itemPedidoRequest.produtoId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
-        ItemPedido entity = ItemPedidoMapper.toEntity(itemPedidoRequest, pedido, produto);
+        Produto produtoNovo = produtoRepository.findById(itemPedidoRequest.produtoId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+        Produto produtoAntigo = itemPedido.getProduto();
+        produtoAntigo.setEstoque(produtoAntigo.getEstoque() + itemPedido.getQuantidade());
+        produtoRepository.save(produtoAntigo);
+        if (produtoNovo.getEstoque() < itemPedidoRequest.quantidade()) {
+            throw new EstoqueInsuficienteException("Estoque Insuficiente");
+        }
+        produtoNovo.setEstoque(produtoNovo.getEstoque() - itemPedidoRequest.quantidade());
+        produtoRepository.save(produtoNovo);
+        ItemPedido entity = ItemPedidoMapper.toEntity(itemPedidoRequest, pedido, produtoNovo);
         entity.setId(id);
         ItemPedido save = itemPedidoRepository.save(entity);
         return ItemPedidoMapper.toDTO(save);
     }
 
     public void deletarPorId(Long id) {
+        ItemPedido itemPedido = itemPedidoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+        Produto produto = itemPedido.getProduto();
+        produto.setEstoque(produto.getEstoque() + itemPedido.getQuantidade());
+        produtoRepository.save(produto);
         itemPedidoRepository.deleteById(id);
     }
 
