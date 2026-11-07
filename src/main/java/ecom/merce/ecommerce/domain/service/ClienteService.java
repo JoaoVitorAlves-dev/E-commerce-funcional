@@ -37,9 +37,10 @@ public class ClienteService {
         return new TokenResponse(tokenService.gerarToken(req.email()));
     }
 
-    public Page<ClienteResponse> listar(@PageableDefault(sort = "nome") Pageable pageable) {
-        return clienteRepository.findAllBy(pageable)
-                .map(ClienteResponse::new);
+    public ClienteResponse buscar(Authentication auth) {
+        Cliente cliente = clienteRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return ClienteMapper.toDTO(cliente);
     }
 
     public ClienteResponse buscarPorId(Long id) {

@@ -11,7 +11,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/pagamentos")
@@ -21,8 +24,8 @@ public class PagamentoController {
     private final PagamentoService pagamentoService;
 
     @GetMapping("/listar")
-    public ResponseEntity<Page<PagamentoResponse>> listar(@PageableDefault(sort = "valor", size = 10) Pageable pageable) {
-        return ResponseEntity.ok(pagamentoService.listar(pageable));
+    public ResponseEntity<Page<PagamentoResponse>> listar(Authentication auth, Pageable pageable) {
+        return ResponseEntity.ok(pagamentoService.listar(auth, pageable));
     }
 
     @Transactional

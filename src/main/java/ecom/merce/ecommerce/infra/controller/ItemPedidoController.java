@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,8 +22,8 @@ public class ItemPedidoController {
     private final ItemPedidoService itemPedidoService;
 
     @GetMapping("/listar")
-    public ResponseEntity<Page<ItemPedidoResponse>> listar(@PageableDefault(sort = "quantidade", size = 10)Pageable pageable) {
-        return ResponseEntity.ok(itemPedidoService.listar(pageable));
+    public ResponseEntity<Page<ItemPedidoResponse>> listar(Pageable pageable, Authentication auth) {
+        return ResponseEntity.ok(itemPedidoService.listar(auth, pageable));
     }
 
     @Transactional

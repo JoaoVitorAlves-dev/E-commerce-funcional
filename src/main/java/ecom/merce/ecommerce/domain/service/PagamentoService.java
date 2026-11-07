@@ -10,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,8 +21,8 @@ public class PagamentoService {
 
     private final PagamentoRepository pagamentoRepository;
 
-    public Page<PagamentoResponse> listar(@PageableDefault(sort = "valor", size = 10) Pageable pageable) {
-        return pagamentoRepository.findAllBy(pageable).map(PagamentoMapper::toDTO);
+    public Page<PagamentoResponse> listar(Authentication auth, Pageable pageable) {
+        return pagamentoRepository.findByPedidoClienteEmail(auth.getName(), pageable).map(PagamentoMapper::toDTO);
     }
 
     public PagamentoResponse buscarPorId(Long id) {

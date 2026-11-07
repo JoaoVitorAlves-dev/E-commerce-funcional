@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,8 +26,8 @@ public class ItemPedidoService {
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
 
-    public Page<ItemPedidoResponse> listar(@PageableDefault(sort = "quantidade") Pageable pageable) {
-        return itemPedidoRepository.findAllBy(pageable).map(ItemPedidoResponse::new);
+    public Page<ItemPedidoResponse> listar(Authentication auth, Pageable pageable) {
+        return itemPedidoRepository.findByPedidoClienteEmail(auth.getName(), pageable).map(ItemPedidoMapper::toDTO);
     }
 
     public ItemPedidoResponse buscarPorId(Long id) {
