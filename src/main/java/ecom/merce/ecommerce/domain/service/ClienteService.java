@@ -6,6 +6,7 @@ import ecom.merce.ecommerce.domain.repository.ClienteRepository;
 import ecom.merce.ecommerce.dto.request.ClienteRequest;
 import ecom.merce.ecommerce.dto.request.LoginRequest;
 import ecom.merce.ecommerce.dto.response.ClienteResponse;
+import ecom.merce.ecommerce.dto.response.TokenResponse;
 import ecom.merce.ecommerce.entity.Cliente;
 import ecom.merce.ecommerce.mapper.ClienteMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,9 @@ public class ClienteService {
 
     private final ClienteRepository clienteRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
-    public ClienteResponse login(LoginRequest loginRequest) {
+    public TokenResponse login(LoginRequest loginRequest) {
         Cliente cliente = clienteRepository.findByEmail(loginRequest.email())
                 .orElseThrow(() -> new CredenciaisInvalidasException("Email ou senha inválidos"));
 
@@ -32,7 +34,7 @@ public class ClienteService {
             throw new CredenciaisInvalidasException("Email ou senha inválidos");
         }
 
-        return ClienteMapper.toDTO(cliente);
+        return new TokenResponse(tokenService.gerarToken(cliente.getEmail()));
     }
 
     public Page<ClienteResponse> listar(@PageableDefault(sort = "nome") Pageable pageable) {

@@ -23,8 +23,8 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(ms -> ms.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "clientes", "clientes/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "produtos/**", "categorias/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/clientes", "/clientes/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/produtos/**", "/categorias/**").permitAll()
                         .anyRequest().authenticated());
         return http.build();
     }

@@ -4,6 +4,7 @@ import ecom.merce.ecommerce.domain.service.ClienteService;
 import ecom.merce.ecommerce.dto.request.ClienteRequest;
 import ecom.merce.ecommerce.dto.request.LoginRequest;
 import ecom.merce.ecommerce.dto.response.ClienteResponse;
+import ecom.merce.ecommerce.dto.response.TokenResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class ClienteController {
 
     @Transactional
     @PostMapping("/login")
-    public ResponseEntity<ClienteResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+    public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
         return ResponseEntity.ok(clienteService.login(loginRequest));
     }
 

@@ -29,9 +29,6 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-application.properties
-mvnw.cmd
-mvnw
 .gitattributes
 
 ### VS Code ###

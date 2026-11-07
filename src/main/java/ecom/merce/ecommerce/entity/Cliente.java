@@ -1,5 +1,6 @@
 package ecom.merce.ecommerce.entity;
 
+import ecom.merce.ecommerce.domain.enums.RolesCliente;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -30,4 +31,7 @@ public class Cliente {
     @Column(name = "telefone")
     private String telefone;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RolesCliente roles;
 }
