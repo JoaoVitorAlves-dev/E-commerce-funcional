@@ -43,7 +43,7 @@ public class ItemPedidoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (!itemPedido.getPedido().getCliente().getEmail().equals(auth.getName())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         Produto produto = produtoRepository.findById(itemPedidoRequest.pedidoId())
@@ -66,16 +66,45 @@ public class ItemPedidoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (!itemPedido.getPedido().getCliente().getEmail().equals(auth.getName())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         Pedido pedido = pedidoRepository.findById(req.pedidoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        if (!pedido.getCliente().getEmail().equals(auth.getName())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
         Produto produto = produtoRepository.findById(req.produtoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        itemPedido.setPrecoUnitario(req.precoUnitario());
+        if (req.quantidade() == null || req.quantidade() <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A quantidade deve ser maior que zero.");
+        }
+
+        Produto produtoAntigo = itemPedido.getProduto();
+        int estoqueDisponivel = produto.getEstoque();
+
+        if (produto.getId().equals(produtoAntigo.getId())) {
+            estoqueDisponivel += itemPedido.getQuantidade();
+        }
+
+        if (estoqueDisponivel < req.quantidade()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Estoque insuficiente.");
+        }
+
+        if (produto.getId().equals(produtoAntigo.getId())) {
+            produtoAntigo.setEstoque(
+                    produtoAntigo.getEstoque() + itemPedido.getQuantidade()
+            );
+            produtoRepository.save(produtoAntigo);
+        }
+
+        produto.setEstoque(estoqueDisponivel - req.quantidade());
+        produtoRepository.save(produto);
+
+        itemPedido.setPrecoUnitario(produto.getPreco());
         itemPedido.setQuantidade(req.quantidade());
         itemPedido.setPedido(pedido);
         itemPedido.setProduto(produto);

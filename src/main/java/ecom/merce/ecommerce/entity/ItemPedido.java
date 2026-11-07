@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "item_pedido")
 @Getter
@@ -30,6 +32,6 @@ public class ItemPedido {
     private Integer quantidade;
 
     @Column(name = "preco_unitario")
-    private Integer precoUnitario;
+    private BigDecimal precoUnitario;
 
 }
