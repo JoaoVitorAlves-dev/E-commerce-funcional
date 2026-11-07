@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
-    Page<Endereco> findByClienteEmail(Authentication auth, Pageable pageable);
+    Page<Endereco> findByClienteEmail(String email, Pageable pageable);
 
     Optional<Endereco> findByClienteEmail(String email);
 

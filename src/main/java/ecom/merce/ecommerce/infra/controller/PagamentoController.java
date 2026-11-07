@@ -42,14 +42,14 @@ public class PagamentoController {
 
     @Transactional
     @PatchMapping("/atualizar/{id}")
-    public ResponseEntity<PagamentoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid PagamentoRequest pagamentoRequest) {
-        return ResponseEntity.ok(pagamentoService.atualizarPorId(id, pagamentoRequest));
+    public ResponseEntity<PagamentoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid PagamentoRequest pagamentoRequest, Authentication auth) {
+        return ResponseEntity.ok(pagamentoService.atualizarPorId(id, pagamentoRequest, auth));
     }
 
     @Transactional
-    @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
-        pagamentoService.deletarPorId(id);
+    @DeleteMapping("/deletar")
+    public ResponseEntity<Void> deletarPorId(Authentication auth) {
+        pagamentoService.deletar(auth);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

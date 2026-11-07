@@ -25,7 +25,7 @@ public class EnderecoService {
     private final ClienteRepository clienteRepository;
 
     public Page<EnderecoResponse> listar(Pageable pageable, Authentication auth) {
-        return enderecoRepository.findByClienteEmail(auth,pageable).map(EnderecoMapper::toDTO);
+        return enderecoRepository.findByClienteEmail(auth.getName(), pageable).map(EnderecoMapper::toDTO);
     }
 
     public EnderecoResponse buscarPorId(Long id) {

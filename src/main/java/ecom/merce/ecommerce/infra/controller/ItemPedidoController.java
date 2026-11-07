@@ -34,20 +34,20 @@ public class ItemPedidoController {
 
     @Transactional
     @PostMapping("/adicionar")
-    public ResponseEntity<ItemPedidoResponse> adicionarItemPedido(@RequestBody @Valid ItemPedidoRequest itemPedidoRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(itemPedidoService.adicionarItemPedido(itemPedidoRequest));
+    public ResponseEntity<ItemPedidoResponse> adicionarItemPedido(@RequestBody @Valid ItemPedidoRequest itemPedidoRequest, Authentication auth) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(itemPedidoService.adicionarItemPedido(itemPedidoRequest, auth));
     }
 
     @Transactional
     @PatchMapping("/atualizar/{id}")
-    public ResponseEntity<ItemPedidoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid ItemPedidoRequest itemPedidoRequest) {
-        return ResponseEntity.status(HttpStatus.OK).body(itemPedidoService.atualizarPorId(id, itemPedidoRequest));
+    public ResponseEntity<ItemPedidoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid ItemPedidoRequest itemPedidoRequest, Authentication auth) {
+        return ResponseEntity.status(HttpStatus.OK).body(itemPedidoService.atualizarPorId(id, itemPedidoRequest, auth));
     }
 
     @Transactional
-    @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
-        itemPedidoService.deletarPorId(id);
+    @DeleteMapping("/deletar")
+    public ResponseEntity<Void> deletarPorId(@PathVariable Authentication auth) {
+        itemPedidoService.deletar(auth);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
