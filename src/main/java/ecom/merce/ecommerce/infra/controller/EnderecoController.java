@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,15 +39,15 @@ public class EnderecoController {
     }
 
     @Transactional
-    @PatchMapping("/atualizar/{id}")
-    public ResponseEntity<EnderecoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid EnderecoRequest enderecoRequest) {
-        return ResponseEntity.ok(enderecoService.atualizarPorId(id, enderecoRequest));
+    @PatchMapping("/atualizar")
+    public ResponseEntity<EnderecoResponse> atualizarPorId(@RequestBody @Valid EnderecoRequest enderecoRequest, Authentication auth) {
+        return ResponseEntity.ok(enderecoService.atualizar(enderecoRequest, auth));
     }
 
     @Transactional
-    @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
-        enderecoService.deletarPorId(id);
+    @DeleteMapping("/deletar")
+    public ResponseEntity<Void> deletar(Authentication auth) {
+        enderecoService.deletar(auth);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

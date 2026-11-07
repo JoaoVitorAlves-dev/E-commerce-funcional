@@ -45,8 +45,8 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/enderecos/listar", "/enderecos/buscar/{id}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/enderecos/adicionar").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/enderecos/atualizar/{id}").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/enderecos/deletar/{id}").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/enderecos/atualizar").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/enderecos/deletar").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/itempedidos/listar", "/itempedidos/buscar/{id}").permitAll()
                         .requestMatchers(HttpMethod.POST, "/itempedidos/adicionar").permitAll()

@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -36,17 +39,23 @@ public class EnderecoService {
         return EnderecoMapper.toDTO(save);
     }
 
-    public EnderecoResponse atualizarPorId(Long id, EnderecoRequest enderecoRequest) {
-        enderecoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
-        Cliente clienteId = clienteRepository.findById(enderecoRequest.clienteId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
-        Endereco entity = EnderecoMapper.toEntity(enderecoRequest, clienteId);
-        entity.setId(id);
-        Endereco save = enderecoRepository.save(entity);
-        return EnderecoMapper.toDTO(save);
+    public EnderecoResponse atualizar(EnderecoRequest req, Authentication auth) {
+        Endereco endereco = enderecoRepository.findByClienteEmail(auth.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        endereco.setRua(req.rua());
+        endereco.setCep(req.cep());
+        endereco.setCidade(req.cidade());
+        endereco.setEstado(req.estado());
+
+        return EnderecoMapper.toDTO(enderecoRepository.save(endereco));
     }
 
-    public void deletarPorId(Long id) {
-        enderecoRepository.deleteById(id);
+    public void deletar(Authentication auth) {
+        Endereco endereco = enderecoRepository.findByClienteEmail(auth.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        enderecoRepository.delete(endereco);
     }
 
 }
