@@ -14,37 +14,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("enderecos")
+@RequestMapping("/enderecos")
 @RequiredArgsConstructor
 public class EnderecoController {
 
     private final EnderecoService enderecoService;
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<Page<EnderecoResponse>> listar(@PageableDefault(sort = "rua", size = 10) Pageable pageable) {
         return ResponseEntity.ok(enderecoService.listar(pageable));
     }
 
     @Transactional
-    @GetMapping("/{id}")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<EnderecoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(enderecoService.buscarPorId(id));
     }
 
     @Transactional
-    @PostMapping
+    @PostMapping("/adicionar")
     public ResponseEntity<EnderecoResponse> adicionarEndereco(@RequestBody @Valid EnderecoRequest enderecoRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(enderecoService.adicionarEndereco(enderecoRequest));
     }
 
     @Transactional
-    @PatchMapping("/{id}")
+    @PatchMapping("/atualizar/{id}")
     public ResponseEntity<EnderecoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid EnderecoRequest enderecoRequest) {
         return ResponseEntity.ok(enderecoService.atualizarPorId(id, enderecoRequest));
     }
 
     @Transactional
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
         enderecoService.deletarPorId(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

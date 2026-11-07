@@ -14,37 +14,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("categorias")
+@RequestMapping("/categorias")
 @RequiredArgsConstructor
 public class CategoriaController {
 
     private final CategoriaService categoriaService;
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<Page<CategoriaResponse>> listar(@PageableDefault(sort = "nome", size = 10) Pageable pageable) {
         return ResponseEntity.ok(categoriaService.listar(pageable));
     }
 
     @Transactional
-    @GetMapping("/{id}")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<CategoriaResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(categoriaService.buscarPorId(id));
     }
 
     @Transactional
-    @PostMapping
+    @PostMapping("/adicionar")
     public ResponseEntity<CategoriaResponse> adicionarCategoria(@RequestBody @Valid CategoriaRequest categoriaRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoriaService.adicionarCategoria(categoriaRequest));
     }
 
     @Transactional
-    @PatchMapping("/{id}")
+    @PatchMapping("/atualizar/{id}")
     public ResponseEntity<CategoriaResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid CategoriaRequest categoriaRequest) {
         return ResponseEntity.ok(categoriaService.atualizarPorId(id, categoriaRequest));
     }
 
     @Transactional
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
         categoriaService.deletarPorId(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

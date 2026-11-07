@@ -14,37 +14,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("pagamentos")
+@RequestMapping("/pagamentos")
 @RequiredArgsConstructor
 public class PagamentoController {
 
     private final PagamentoService pagamentoService;
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<Page<PagamentoResponse>> listar(@PageableDefault(sort = "valor", size = 10) Pageable pageable) {
         return ResponseEntity.ok(pagamentoService.listar(pageable));
     }
 
     @Transactional
-    @GetMapping("/{id}")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<PagamentoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(pagamentoService.buscarPorId(id));
     }
 
     @Transactional
-    @PostMapping
+    @PostMapping("/adicionar")
     public ResponseEntity<PagamentoResponse> adicionarPagamento(@RequestBody @Valid PagamentoRequest pagamentoRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(pagamentoService.adicionarPagamento(pagamentoRequest));
     }
 
     @Transactional
-    @PatchMapping("/{id}")
+    @PatchMapping("/atualizar/{id}")
     public ResponseEntity<PagamentoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid PagamentoRequest pagamentoRequest) {
         return ResponseEntity.ok(pagamentoService.atualizarPorId(id, pagamentoRequest));
     }
 
     @Transactional
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
         pagamentoService.deletarPorId(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

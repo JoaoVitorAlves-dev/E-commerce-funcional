@@ -26,7 +26,7 @@ public class ProdutoController {
     }
 
     @Transactional
-    @GetMapping("/listar/{id}")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(produtoService.buscarPorId(id));
     }

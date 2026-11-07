@@ -29,7 +29,7 @@ public class ClienteController {
     }
 
     @Transactional
-    @GetMapping("/listar/{id}")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<ClienteResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(clienteService.buscarPorId(id));
     }
