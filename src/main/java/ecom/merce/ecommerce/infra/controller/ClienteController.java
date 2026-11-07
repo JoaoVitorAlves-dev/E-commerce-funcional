@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,38 +23,39 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<Page<ClienteResponse>> listar(@PageableDefault(sort = "nome", size = 10) Pageable pageable) {
         return ResponseEntity.ok(clienteService.listar(pageable));
     }
 
     @Transactional
-    @GetMapping("/{id}")
+    @GetMapping("/listar/{id}")
     public ResponseEntity<ClienteResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(clienteService.buscarPorId(id));
     }
 
     @Transactional
-    @PostMapping
-    public ResponseEntity<ClienteResponse> adicionarCliene(@RequestBody @Valid ClienteRequest clienteRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.adicionarCliente(clienteRequest));
+    @PostMapping("/registrar")
+    public ResponseEntity<Void> adicionarCliene(@RequestBody @Valid ClienteRequest clienteRequest) {
+        clienteService.adicionarCliente(clienteRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Transactional
-    @PostMapping("/login")
+    @PostMapping("/logar")
     public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
         return ResponseEntity.ok(clienteService.login(loginRequest));
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<ClienteResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid ClienteRequest clienteRequest) {
-        return ResponseEntity.ok(clienteService.atualizarCliente(id, clienteRequest));
+    @PutMapping("/atualizar")
+    public ResponseEntity<ClienteResponse> atualizarPorId(@RequestBody @Valid ClienteRequest clienteRequest, Authentication auth) {
+        return ResponseEntity.ok(clienteService.atualizarCliente(clienteRequest, auth));
     }
 
     @Transactional
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
-        clienteService.deletarPorId(id);
+    @DeleteMapping("/deletar")
+    public ResponseEntity<Void> deletarPorId(Authentication auth) {
+        clienteService.deletar(auth);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -20,31 +20,31 @@ public class ProdutoController {
 
     private final ProdutoService produtoService;
 
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<Page<ProdutoResponse>> listar(@PageableDefault(sort = "nome", size = 10) Pageable pageable) {
         return ResponseEntity.ok(produtoService.listar(pageable));
     }
 
     @Transactional
-    @GetMapping("/{id}")
+    @GetMapping("/listar/{id}")
     public ResponseEntity<ProdutoResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(produtoService.buscarPorId(id));
     }
 
     @Transactional
-    @PostMapping
+    @PostMapping("/adicionar")
     public ResponseEntity<ProdutoResponse> adicionar(@RequestBody @Valid ProdutoRequest produtoRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(produtoService.adicionarProduto(produtoRequest));
     }
 
     @Transactional
-    @PatchMapping("/{id}")
+    @PatchMapping("/atualizar/{id}")
     public ResponseEntity<ProdutoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid ProdutoRequest produtoRequest) {
         return ResponseEntity.ok(produtoService.atualizarPorId(id, produtoRequest));
     }
 
     @Transactional
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
         produtoService.deletarPorId(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

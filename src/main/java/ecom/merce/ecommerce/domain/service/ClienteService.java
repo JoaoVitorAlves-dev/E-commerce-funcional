@@ -1,5 +1,6 @@
 package ecom.merce.ecommerce.domain.service;
 
+import ecom.merce.ecommerce.domain.enums.RolesCliente;
 import ecom.merce.ecommerce.domain.exceptions.CredenciaisInvalidasException;
 import ecom.merce.ecommerce.domain.exceptions.IdNotFoundException;
 import ecom.merce.ecommerce.domain.repository.ClienteRepository;
@@ -13,8 +14,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +29,7 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final AuthenticationManager authenticationManager;
 
     public TokenResponse login(LoginRequest loginRequest) {
         Cliente cliente = clienteRepository.findByEmail(loginRequest.email())
@@ -34,6 +41,8 @@ public class ClienteService {
             throw new CredenciaisInvalidasException("Email ou senha inválidos");
         }
 
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(cliente.getEmail(), cliente.getSenha()));
+
         return new TokenResponse(tokenService.gerarToken(cliente.getEmail()));
     }
 
@@ -43,27 +52,43 @@ public class ClienteService {
     }
 
     public ClienteResponse buscarPorId(Long id) {
-        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID não existe"));
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(() -> new IdNotFoundException("Cliente não encontrado."));
         return ClienteMapper.toDTO(cliente);
     }
 
-    public ClienteResponse adicionarCliente(ClienteRequest clienteRequest) {
+    public void adicionarCliente(ClienteRequest clienteRequest) {
         Cliente entity = ClienteMapper.toEntity(clienteRequest);
+
+        if (clienteRepository.existsByEmail(clienteRequest.email())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "email já cadastrado.");
+        }
+
         entity.setSenha(passwordEncoder.encode(clienteRequest.senha()));
-        Cliente save = clienteRepository.save(entity);
-        return ClienteMapper.toDTO(save);
+        entity.setRoles(RolesCliente.USER);
+        clienteRepository.save(entity);
     }
 
-    public ClienteResponse atualizarCliente(Long id, ClienteRequest clienteRequest) {
-        clienteRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID não existe"));
-        Cliente entity = ClienteMapper.toEntity(clienteRequest);
-        entity.setId(id);
-        Cliente save = clienteRepository.save(entity);
-        return ClienteMapper.toDTO(save);
+    public ClienteResponse atualizarCliente(ClienteRequest clienteRequest, Authentication auth) {
+        Cliente cliente = clienteRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new IdNotFoundException("Cliente não encontrado."));
+
+        if (!cliente.getEmail().equals(auth.getName())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "permissões insuficientes.");
+        }
+
+        if (!clienteRepository.existsByEmail(clienteRequest.email())) {
+            cliente.setEmail(clienteRequest.email());
+        }
+
+        cliente.setNome(clienteRequest.nome());
+        cliente.setSenha(passwordEncoder.encode(clienteRequest.senha()));
+        cliente.setTelefone(clienteRequest.telefone());
+
+        return ClienteMapper.toDTO(clienteRepository.save(cliente));
     }
 
-    public void deletarPorId(Long id) {
-        clienteRepository.deleteById(id);
+    public void deletar(Authentication auth) {
+        clienteRepository.findByEmail(auth.getName()).ifPresent(clienteRepository::delete);
     }
 
 }
