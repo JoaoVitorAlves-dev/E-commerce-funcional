@@ -67,10 +67,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/produtos/atualizar/{id}").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.DELETE, "/produtos/deletar/{id}").hasAnyRole("ADMIN", "SELLER")
 
-                        .requestMatchers(HttpMethod.GET, "/pedidos/listar", "/pedidos/buscar/{id}").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/pedidos/adicionar").permitAll()
-                        .requestMatchers(HttpMethod.PATCH, "/pedidos/atualizar/{id}").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/pedidos/deletar/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/pedidos/listar").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/pedidos/buscar/{id}").hasAnyRole("ADMIN", "SELLER")
+                        .requestMatchers(HttpMethod.POST, "/pedidos/adicionar").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/pedidos/atualizar/{id}").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/pedidos/deletar/{id}").authenticated()
 
                         .anyRequest().authenticated())
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);

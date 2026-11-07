@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,8 +22,8 @@ public class PedidoController {
     private final PedidoService pedidoService;
 
     @GetMapping("/listar")
-    public ResponseEntity<Page<PedidoResponse>> listar(@PageableDefault(sort = "quantidade", size = 10) Pageable pageable) {
-        return ResponseEntity.ok(pedidoService.listar(pageable));
+    public ResponseEntity<Page<PedidoResponse>> listar(Pageable pageable, Authentication auth) {
+        return ResponseEntity.ok(pedidoService.listar(pageable, auth));
     }
 
     @Transactional
@@ -33,20 +34,20 @@ public class PedidoController {
 
     @Transactional
     @PostMapping("/adicionar")
-    public ResponseEntity<PedidoResponse> adicionarPedido(@RequestBody @Valid PedidoRequest pedidoRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.adicionarPedido(pedidoRequest));
+    public ResponseEntity<PedidoResponse> adicionarPedido(@RequestBody @Valid PedidoRequest pedidoRequest, Authentication auth) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(pedidoService.adicionarPedido(pedidoRequest, auth));
     }
 
     @Transactional
     @PatchMapping("/atualizar/{id}")
-    public ResponseEntity<PedidoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid PedidoRequest pedidoRequest) {
-        return ResponseEntity.ok(pedidoService.atualizarPorId(id, pedidoRequest));
+    public ResponseEntity<PedidoResponse> atualizarPorId(@PathVariable Long id, @RequestBody @Valid PedidoRequest pedidoRequest, Authentication auth) {
+        return ResponseEntity.ok(pedidoService.atualizarPorId(id, pedidoRequest, auth));
     }
 
     @Transactional
-    @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
-        pedidoService.deletarPorId(id);
+    @DeleteMapping("/deletar")
+    public ResponseEntity<Void> deletarPorId(Authentication auth) {
+        pedidoService.deletar(auth);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
