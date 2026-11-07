@@ -31,19 +31,10 @@ public class ClienteService {
     private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
 
-    public TokenResponse login(LoginRequest loginRequest) {
-        Cliente cliente = clienteRepository.findByEmail(loginRequest.email())
-                .orElseThrow(() -> new CredenciaisInvalidasException("Email ou senha inválidos"));
+    public TokenResponse login(LoginRequest req) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.email(), req.senha()));
 
-        boolean senhaCorreta = passwordEncoder.matches(loginRequest.senha(), cliente.getSenha());
-
-        if (!senhaCorreta) {
-            throw new CredenciaisInvalidasException("Email ou senha inválidos");
-        }
-
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(cliente.getEmail(), cliente.getSenha()));
-
-        return new TokenResponse(tokenService.gerarToken(cliente.getEmail()));
+        return new TokenResponse(tokenService.gerarToken(req.email()));
     }
 
     public Page<ClienteResponse> listar(@PageableDefault(sort = "nome") Pageable pageable) {
@@ -76,10 +67,11 @@ public class ClienteService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "permissões insuficientes.");
         }
 
-        if (!clienteRepository.existsByEmail(clienteRequest.email())) {
-            cliente.setEmail(clienteRequest.email());
+        if (!cliente.getEmail().equals(clienteRequest.email()) && clienteRepository.existsByEmail(clienteRequest.email())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Este e-mail já está cadastrado.");
         }
 
+        cliente.setEmail(clienteRequest.email());
         cliente.setNome(clienteRequest.nome());
         cliente.setSenha(passwordEncoder.encode(clienteRequest.senha()));
         cliente.setTelefone(clienteRequest.telefone());
@@ -88,7 +80,9 @@ public class ClienteService {
     }
 
     public void deletar(Authentication auth) {
-        clienteRepository.findByEmail(auth.getName()).ifPresent(clienteRepository::delete);
+        Cliente cliente = clienteRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new IdNotFoundException("Cliente não encontrado."));
+        clienteRepository.delete(cliente);
     }
 
 }
