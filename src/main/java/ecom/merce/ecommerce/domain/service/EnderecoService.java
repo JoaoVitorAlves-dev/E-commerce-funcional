@@ -24,8 +24,8 @@ public class EnderecoService {
     private final EnderecoRepository enderecoRepository;
     private final ClienteRepository clienteRepository;
 
-    public Page<EnderecoResponse> listar(@PageableDefault(sort = "rua", size = 10) Pageable pageable) {
-        return enderecoRepository.findAllBy(pageable).map(EnderecoResponse::new);
+    public Page<EnderecoResponse> listar(Pageable pageable, Authentication auth) {
+        return enderecoRepository.findByClienteEmail(auth,pageable).map(EnderecoMapper::toDTO);
     }
 
     public EnderecoResponse buscarPorId(Long id) {
@@ -33,8 +33,14 @@ public class EnderecoService {
         return EnderecoMapper.toDTO(endereco);
     }
 
-    public EnderecoResponse adicionarEndereco(EnderecoRequest enderecoRequest) {
-        Cliente clienteId = clienteRepository.findById(enderecoRequest.clienteId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+    public EnderecoResponse adicionarEndereco(EnderecoRequest enderecoRequest, Authentication auth) {
+        Cliente clienteId = clienteRepository.findById(enderecoRequest.clienteId())
+                .orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+
+        if (!clienteId.getEmail().equals(auth.getName())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
         Endereco save = enderecoRepository.save(EnderecoMapper.toEntity(enderecoRequest, clienteId));
         return EnderecoMapper.toDTO(save);
     }

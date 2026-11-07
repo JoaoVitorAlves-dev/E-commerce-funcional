@@ -64,10 +64,6 @@ public class ClienteService {
         Cliente cliente = clienteRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new IdNotFoundException("Cliente não encontrado."));
 
-        if (!cliente.getEmail().equals(auth.getName())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "permissões insuficientes.");
-        }
-
         if (!cliente.getEmail().equals(clienteRequest.email()) && clienteRepository.existsByEmail(clienteRequest.email())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Este e-mail já está cadastrado.");
         }

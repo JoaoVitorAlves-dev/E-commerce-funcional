@@ -22,8 +22,8 @@ public class EnderecoController {
     private final EnderecoService enderecoService;
 
     @GetMapping("/listar")
-    public ResponseEntity<Page<EnderecoResponse>> listar(@PageableDefault(sort = "rua", size = 10) Pageable pageable) {
-        return ResponseEntity.ok(enderecoService.listar(pageable));
+    public ResponseEntity<Page<EnderecoResponse>> listar(@PageableDefault(sort = "rua", size = 10) Pageable pageable, Authentication auth) {
+        return ResponseEntity.ok(enderecoService.listar(pageable, auth));
     }
 
     @Transactional
@@ -34,13 +34,13 @@ public class EnderecoController {
 
     @Transactional
     @PostMapping("/adicionar")
-    public ResponseEntity<EnderecoResponse> adicionarEndereco(@RequestBody @Valid EnderecoRequest enderecoRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(enderecoService.adicionarEndereco(enderecoRequest));
+    public ResponseEntity<EnderecoResponse> adicionarEndereco(@RequestBody @Valid EnderecoRequest enderecoRequest, Authentication auth) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(enderecoService.adicionarEndereco(enderecoRequest, auth));
     }
 
     @Transactional
     @PatchMapping("/atualizar")
-    public ResponseEntity<EnderecoResponse> atualizarPorId(@RequestBody @Valid EnderecoRequest enderecoRequest, Authentication auth) {
+    public ResponseEntity<EnderecoResponse> atualizar(@RequestBody @Valid EnderecoRequest enderecoRequest, Authentication auth) {
         return ResponseEntity.ok(enderecoService.atualizar(enderecoRequest, auth));
     }
 

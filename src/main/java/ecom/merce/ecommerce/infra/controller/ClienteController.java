@@ -23,9 +23,9 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
-    @GetMapping("/listar")
-    public ResponseEntity<Page<ClienteResponse>> listar(@PageableDefault(sort = "nome", size = 10) Pageable pageable) {
-        return ResponseEntity.ok(clienteService.listar(pageable));
+    @GetMapping("/buscar")
+    public ResponseEntity<ClienteResponse> buscar(Authentication authentication) {
+        return ResponseEntity.ok(clienteService.buscar(authentication));
     }
 
     @Transactional
