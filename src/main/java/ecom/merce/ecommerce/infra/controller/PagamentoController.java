@@ -30,8 +30,8 @@ public class PagamentoController {
 
     @Transactional
     @GetMapping("/buscar/{id}")
-    public ResponseEntity<PagamentoResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(pagamentoService.buscarPorId(id));
+    public ResponseEntity<PagamentoResponse> buscarPorId(@PathVariable Long id, Authentication auth) {
+        return ResponseEntity.ok(pagamentoService.buscarPorId(id, auth));
     }
 
     @Transactional
