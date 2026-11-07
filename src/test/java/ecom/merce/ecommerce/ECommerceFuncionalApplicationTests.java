@@ -1,4 +1,4 @@
-package med.voll.ecommerce;
+package ecom.merce.ecommerce;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
