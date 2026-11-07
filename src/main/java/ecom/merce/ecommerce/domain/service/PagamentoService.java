@@ -30,8 +30,9 @@ public class PagamentoService {
         return pagamentoRepository.findByPedidoClienteEmail(auth.getName(), pageable).map(PagamentoMapper::toDTO);
     }
 
-    public PagamentoResponse buscarPorId(Long id) {
-        Pagamento pagamento = pagamentoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+    public PagamentoResponse buscarPorId(Long id, Authentication auth) {
+        Pagamento pagamento = pagamentoRepository.findByIdAndPedidoClienteEmail(id, auth.getName())
+                .orElseThrow(() -> new IdNotFoundException("ID Não existe"));
         return PagamentoMapper.toDTO(pagamento);
     }
 
@@ -69,10 +70,8 @@ public class PagamentoService {
         return PagamentoMapper.toDTO(pagamentoRepository.save(pagamento));
     }
 
-    public void deletar(Authentication auth) {
-        Pagamento pagamento = pagamentoRepository.findByPedidoClienteEmail(auth.getName())
-                .orElseThrow(() -> new IdNotFoundException("Pagamento Não existe"));
-        pagamentoRepository.delete(pagamento);
+    public void deletar(Long id) {
+        pagamentoRepository.findById(id).ifPresent(pagamentoRepository::delete);
     }
 
 }

@@ -16,4 +16,5 @@ public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
 
     Optional<Endereco> findByClienteEmail(String email);
 
+    Optional<Endereco> findByIdAndClienteEmail(Long id, String name);
 }

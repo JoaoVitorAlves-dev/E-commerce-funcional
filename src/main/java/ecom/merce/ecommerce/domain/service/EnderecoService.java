@@ -60,13 +60,8 @@ public class EnderecoService {
     }
 
     public void deletar(Long id, Authentication auth) {
-        Endereco endereco = enderecoRepository.findById(id)
+        Endereco endereco = enderecoRepository.findByIdAndClienteEmail(id, auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        if (!endereco.getCliente().getEmail().equals(auth.getName())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
-
         enderecoRepository.delete(endereco);
     }
 

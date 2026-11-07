@@ -28,8 +28,8 @@ public class ItemPedidoController {
 
     @Transactional
     @GetMapping("/buscar/{id}")
-    public ResponseEntity<ItemPedidoResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(itemPedidoService.buscarPorId(id));
+    public ResponseEntity<ItemPedidoResponse> buscarPorId(@PathVariable Long id, Authentication auth) {
+        return ResponseEntity.ok(itemPedidoService.buscarPorId(id, auth));
     }
 
     @Transactional

@@ -47,9 +47,9 @@ public class PagamentoController {
     }
 
     @Transactional
-    @DeleteMapping("/deletar")
-    public ResponseEntity<Void> deletarPorId(Authentication auth) {
-        pagamentoService.deletar(auth);
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
+        pagamentoService.deletar(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

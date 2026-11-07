@@ -12,6 +12,8 @@ import java.util.Optional;
 @Repository
 public interface ItemPedidoRepository extends JpaRepository<ItemPedido, Long> {
 
+    List<ItemPedido> findAllByPedidoId(Long pedidoId);
+
     Page<ItemPedido> findByPedidoClienteEmail(String email, Pageable pageable);
 
     Optional<ItemPedido> findByIdAndPedidoClienteEmail(Long id, String email);

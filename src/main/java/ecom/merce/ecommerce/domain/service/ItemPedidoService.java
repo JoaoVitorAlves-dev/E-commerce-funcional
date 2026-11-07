@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -24,50 +25,24 @@ public class ItemPedidoService {
     private final ItemPedidoRepository itemPedidoRepository;
     private final PedidoRepository pedidoRepository;
     private final ProdutoRepository produtoRepository;
+    private final PedidoService pedidoService;
 
     public Page<ItemPedidoResponse> listar(Authentication auth, Pageable pageable) {
-        return itemPedidoRepository.findByPedidoClienteEmail(auth.getName(), pageable).map(ItemPedidoMapper::toDTO);
+        return itemPedidoRepository
+                .findByPedidoClienteEmail(auth.getName(), pageable)
+                .map(ItemPedidoMapper::toDTO);
     }
 
     public ItemPedidoResponse buscarPorId(Long id, Authentication auth) {
-        ItemPedido itemPedido = itemPedidoRepository.findByIdAndPedidoClienteEmail(id, auth.getName())
+        ItemPedido itemPedido = itemPedidoRepository
+                .findByIdAndPedidoClienteEmail(id, auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         return ItemPedidoMapper.toDTO(itemPedido);
     }
 
-    public ItemPedidoResponse adicionarItemPedido(ItemPedidoRequest itemPedidoRequest, Authentication auth) {
-        Pedido pedido = pedidoRepository.findById(itemPedidoRequest.pedidoId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        Produto produto = produtoRepository.findById(itemPedidoRequest.produtoId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        ItemPedido entity = ItemPedidoMapper.toEntity(itemPedidoRequest, pedido, produto);
-
-        if (!entity.getPedido().getCliente().getEmail().equals(auth.getName())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
-
-        if (itemPedidoRequest.quantidade() == null || itemPedidoRequest.quantidade() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
-
-        if (produto.getEstoque() < itemPedidoRequest.quantidade()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
-        }
-
-        produto.setEstoque(produto.getEstoque() - itemPedidoRequest.quantidade());
-
-        entity.setPrecoUnitario(produto.getPreco());
-
-        produtoRepository.save(produto);
-        return ItemPedidoMapper.toDTO(itemPedidoRepository.save(entity));
-    }
-
-    public ItemPedidoResponse atualizarPorId(Long id, ItemPedidoRequest req, Authentication auth) {
-        ItemPedido itemPedido = itemPedidoRepository.findByIdAndPedidoClienteEmail(id, auth.getName())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
+    @Transactional
+    public ItemPedidoResponse adicionarItemPedido(ItemPedidoRequest req, Authentication auth) {
         Pedido pedido = pedidoRepository.findById(req.pedidoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
@@ -79,43 +54,98 @@ public class ItemPedidoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (req.quantidade() == null || req.quantidade() <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A quantidade deve ser maior que zero.");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "A quantidade deve ser maior que zero.");
         }
 
-        Produto produtoAntigo = itemPedido.getProduto();
-        int estoqueDisponivel = produto.getEstoque();
+        if (produto.getEstoque() < req.quantidade()) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Estoque insuficiente.");
+        }
 
-        if (produto.getId().equals(produtoAntigo.getId())) {
-            estoqueDisponivel += itemPedido.getQuantidade();
+        ItemPedido item = ItemPedidoMapper.toEntity(req, pedido, produto);
+        item.setPrecoUnitario(produto.getPreco());
+
+        produto.setEstoque(produto.getEstoque() - req.quantidade());
+        produtoRepository.save(produto);
+
+        ItemPedido salvo = itemPedidoRepository.save(item);
+        pedidoService.recalcularTotalPedido(pedido.getId());
+
+        return ItemPedidoMapper.toDTO(salvo);
+    }
+
+    @Transactional
+    public ItemPedidoResponse atualizarPorId(Long id, ItemPedidoRequest req, Authentication auth) {
+        ItemPedido item = itemPedidoRepository
+                .findByIdAndPedidoClienteEmail(id, auth.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Long pedidoAntigoId = item.getPedido().getId();
+
+        Pedido pedidoNovo = pedidoRepository.findById(req.pedidoId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!pedidoNovo.getCliente().getEmail().equals(auth.getName())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+
+        Produto produtoNovo = produtoRepository.findById(req.produtoId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (req.quantidade() == null || req.quantidade() <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "A quantidade deve ser maior que zero.");
+        }
+
+        Produto produtoAntigo = item.getProduto();
+        boolean mesmoProduto = produtoNovo.getId().equals(produtoAntigo.getId());
+
+        int estoqueDisponivel = produtoNovo.getEstoque();
+        if (mesmoProduto) {
+            estoqueDisponivel += item.getQuantidade();
         }
 
         if (estoqueDisponivel < req.quantidade()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Estoque insuficiente.");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Estoque insuficiente.");
         }
 
-        if (!produto.getId().equals(produtoAntigo.getId())) {
-            produtoAntigo.setEstoque(
-                    produtoAntigo.getEstoque() + itemPedido.getQuantidade()
-            );
+        if (!mesmoProduto) {
+            produtoAntigo.setEstoque(produtoAntigo.getEstoque() + item.getQuantidade());
             produtoRepository.save(produtoAntigo);
         }
 
-        produto.setEstoque(estoqueDisponivel - req.quantidade());
-        produtoRepository.save(produto);
+        produtoNovo.setEstoque(estoqueDisponivel - req.quantidade());
+        produtoRepository.save(produtoNovo);
 
-        itemPedido.setPrecoUnitario(produto.getPreco());
-        itemPedido.setQuantidade(req.quantidade());
-        itemPedido.setPedido(pedido);
-        itemPedido.setProduto(produto);
+        item.setPedido(pedidoNovo);
+        item.setProduto(produtoNovo);
+        item.setQuantidade(req.quantidade());
+        item.setPrecoUnitario(produtoNovo.getPreco());
 
-        return ItemPedidoMapper.toDTO(itemPedidoRepository.save(itemPedido));
+        ItemPedido salvo = itemPedidoRepository.save(item);
+
+        pedidoService.recalcularTotalPedido(pedidoAntigoId);
+        if (!pedidoAntigoId.equals(pedidoNovo.getId())) {
+            pedidoService.recalcularTotalPedido(pedidoNovo.getId());
+        }
+
+        return ItemPedidoMapper.toDTO(salvo);
     }
 
+    @Transactional
     public void deletar(Long id, Authentication auth) {
-        ItemPedido itemPedido = itemPedidoRepository.findByIdAndPedidoClienteEmail(id, auth.getName())
+        ItemPedido item = itemPedidoRepository.findByIdAndPedidoClienteEmail(id, auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        itemPedidoRepository.delete(itemPedido);
-    }
+        Long pedidoId = item.getPedido().getId();
 
+        Produto produto = item.getProduto();
+        produto.setEstoque(produto.getEstoque() + item.getQuantidade());
+        produtoRepository.save(produto);
+
+        itemPedidoRepository.delete(item);
+        pedidoService.recalcularTotalPedido(pedidoId);
+    }
 }

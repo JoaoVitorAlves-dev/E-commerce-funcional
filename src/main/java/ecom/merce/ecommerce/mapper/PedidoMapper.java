@@ -14,7 +14,6 @@ public class PedidoMapper {
         pedido.setCliente(cliente);
         pedido.setDataPedido(pedidoRequest.dataPedido());
         pedido.setStatus(pedidoRequest.status());
-        pedido.setTotal(pedidoRequest.total());
         return pedido;
     }
 

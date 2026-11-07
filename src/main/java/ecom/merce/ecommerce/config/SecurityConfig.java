@@ -51,13 +51,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/enderecos/deletar/{id}").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/itempedidos/listar").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/itempedidos/buscar/{id}").hasAnyRole("ADMIN", "SELLER")
+                        .requestMatchers(HttpMethod.GET, "/itempedidos/buscar/{id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/itempedidos/adicionar").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/itempedidos/atualizar/{id}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/itempedidos/deletar/{id}").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/pagamentos/listar").authenticated()
-                        .requestMatchers(HttpMethod.GET,"/pagamentos/buscar/{id}").hasAnyRole("ADMIN", "SELLER")
+                        .requestMatchers(HttpMethod.GET,"/pagamentos/buscar/{id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/pagamentos/adicionar").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.PATCH, "/pagamentos/atualizar/{id}").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.DELETE, "/pagamentos/deletar/{id}").hasAnyRole("ADMIN", "SELLER")
@@ -68,7 +68,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/produtos/deletar/{id}").hasAnyRole("ADMIN", "SELLER")
 
                         .requestMatchers(HttpMethod.GET, "/pedidos/listar").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/pedidos/buscar/{id}").hasAnyRole("ADMIN", "SELLER")
+                        .requestMatchers(HttpMethod.GET, "/pedidos/buscar/{id}").authenticated()
                         .requestMatchers(HttpMethod.POST, "/pedidos/adicionar").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/pedidos/atualizar/{id}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/pedidos/deletar/{id}").authenticated()
