@@ -17,6 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class EnderecoService {
@@ -57,9 +59,13 @@ public class EnderecoService {
         return EnderecoMapper.toDTO(enderecoRepository.save(endereco));
     }
 
-    public void deletar(Authentication auth) {
-        Endereco endereco = enderecoRepository.findByClienteEmail(auth.getName())
+    public void deletar(Long id, Authentication auth) {
+        Endereco endereco = enderecoRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (!endereco.getCliente().getEmail().equals(auth.getName())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
 
         enderecoRepository.delete(endereco);
     }

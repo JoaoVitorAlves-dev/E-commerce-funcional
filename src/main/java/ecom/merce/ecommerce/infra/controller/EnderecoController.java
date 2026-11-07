@@ -45,9 +45,9 @@ public class EnderecoController {
     }
 
     @Transactional
-    @DeleteMapping("/deletar")
-    public ResponseEntity<Void> deletar(Authentication auth) {
-        enderecoService.deletar(auth);
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id, Authentication auth) {
+        enderecoService.deletar(id, auth);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

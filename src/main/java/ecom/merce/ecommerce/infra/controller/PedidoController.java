@@ -28,8 +28,8 @@ public class PedidoController {
 
     @Transactional
     @GetMapping("/buscar/{id}")
-    public ResponseEntity<PedidoResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(pedidoService.buscarPorId(id));
+    public ResponseEntity<PedidoResponse> buscarPorId(@PathVariable Long id, Authentication auth) {
+        return ResponseEntity.ok(pedidoService.buscarPorId(id, auth));
     }
 
     @Transactional
@@ -45,9 +45,9 @@ public class PedidoController {
     }
 
     @Transactional
-    @DeleteMapping("/deletar")
-    public ResponseEntity<Void> deletarPorId(Authentication auth) {
-        pedidoService.deletar(auth);
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<Void> deletarPorId(@PathVariable Long id, Authentication auth) {
+        pedidoService.deletar(id ,auth);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

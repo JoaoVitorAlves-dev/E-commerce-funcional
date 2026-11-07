@@ -8,6 +8,5 @@ import java.time.LocalDate;
 
 public record PedidoRequest(@NotNull Long clienteId,
                             @NotNull LocalDate dataPedido,
-                            @NotNull StatusPedido status,
-                            @NotNull BigDecimal total) {
+                            @NotNull StatusPedido status) {
 }

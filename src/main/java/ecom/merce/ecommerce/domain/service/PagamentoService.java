@@ -35,9 +35,14 @@ public class PagamentoService {
         return PagamentoMapper.toDTO(pagamento);
     }
 
-    public PagamentoResponse adicionarPagamento(PagamentoRequest pagamentoRequest) {
-        Pagamento save = pagamentoRepository.save(PagamentoMapper.toEntity(pagamentoRequest));
-        return PagamentoMapper.toDTO(save);
+    public PagamentoResponse adicionarPagamento(PagamentoRequest req) {
+        Pedido pedido = pedidoRepository.findById(req.pedidoId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Pagamento entity = PagamentoMapper.toEntity(req);
+        entity.setPedido(pedido);
+
+        return PagamentoMapper.toDTO(pagamentoRepository.save(entity));
     }
 
     public PagamentoResponse atualizarPorId(Long id, PagamentoRequest req, Authentication auth) {
@@ -69,6 +74,5 @@ public class PagamentoService {
                 .orElseThrow(() -> new IdNotFoundException("Pagamento Não existe"));
         pagamentoRepository.delete(pagamento);
     }
-
 
 }

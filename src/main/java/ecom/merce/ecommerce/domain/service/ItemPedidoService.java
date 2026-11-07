@@ -1,7 +1,5 @@
 package ecom.merce.ecommerce.domain.service;
 
-import ecom.merce.ecommerce.domain.exceptions.EstoqueInsuficienteException;
-import ecom.merce.ecommerce.domain.exceptions.IdNotFoundException;
 import ecom.merce.ecommerce.domain.repository.ItemPedidoRepository;
 import ecom.merce.ecommerce.domain.repository.PedidoRepository;
 import ecom.merce.ecommerce.domain.repository.ProdutoRepository;
@@ -12,10 +10,8 @@ import ecom.merce.ecommerce.entity.Pedido;
 import ecom.merce.ecommerce.entity.Produto;
 import ecom.merce.ecommerce.mapper.ItemPedidoMapper;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.internal.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -33,8 +29,9 @@ public class ItemPedidoService {
         return itemPedidoRepository.findByPedidoClienteEmail(auth.getName(), pageable).map(ItemPedidoMapper::toDTO);
     }
 
-    public ItemPedidoResponse buscarPorId(Long id) {
-        ItemPedido itemPedido = itemPedidoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID não existe"));
+    public ItemPedidoResponse buscarPorId(Long id, Authentication auth) {
+        ItemPedido itemPedido = itemPedidoRepository.findByIdAndPedidoClienteEmail(id, auth.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return ItemPedidoMapper.toDTO(itemPedido);
     }
 
@@ -48,7 +45,7 @@ public class ItemPedidoService {
         ItemPedido entity = ItemPedidoMapper.toEntity(itemPedidoRequest, pedido, produto);
 
         if (!entity.getPedido().getCliente().getEmail().equals(auth.getName())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         if (itemPedidoRequest.quantidade() == null || itemPedidoRequest.quantidade() <= 0) {
@@ -64,16 +61,12 @@ public class ItemPedidoService {
         entity.setPrecoUnitario(produto.getPreco());
 
         produtoRepository.save(produto);
-        return ItemPedidoMapper.toDTO(itemPedidoRepository.save(ItemPedidoMapper.toEntity(itemPedidoRequest, pedido, produto)));
+        return ItemPedidoMapper.toDTO(itemPedidoRepository.save(entity));
     }
 
     public ItemPedidoResponse atualizarPorId(Long id, ItemPedidoRequest req, Authentication auth) {
-        ItemPedido itemPedido = itemPedidoRepository.findById(id)
+        ItemPedido itemPedido = itemPedidoRepository.findByIdAndPedidoClienteEmail(id, auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        if (!itemPedido.getPedido().getCliente().getEmail().equals(auth.getName())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
 
         Pedido pedido = pedidoRepository.findById(req.pedidoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -100,7 +93,7 @@ public class ItemPedidoService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Estoque insuficiente.");
         }
 
-        if (produto.getId().equals(produtoAntigo.getId())) {
+        if (!produto.getId().equals(produtoAntigo.getId())) {
             produtoAntigo.setEstoque(
                     produtoAntigo.getEstoque() + itemPedido.getQuantidade()
             );
@@ -118,8 +111,8 @@ public class ItemPedidoService {
         return ItemPedidoMapper.toDTO(itemPedidoRepository.save(itemPedido));
     }
 
-    public void deletar(Authentication auth) {
-        ItemPedido itemPedido = itemPedidoRepository.findByPedidoClienteEmail(auth.getName())
+    public void deletar(Long id, Authentication auth) {
+        ItemPedido itemPedido = itemPedidoRepository.findByIdAndPedidoClienteEmail(id, auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         itemPedidoRepository.delete(itemPedido);

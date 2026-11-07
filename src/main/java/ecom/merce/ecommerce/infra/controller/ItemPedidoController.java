@@ -45,9 +45,9 @@ public class ItemPedidoController {
     }
 
     @Transactional
-    @DeleteMapping("/deletar")
-    public ResponseEntity<Void> deletarPorId(@PathVariable Authentication auth) {
-        itemPedidoService.deletar(auth);
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<Void> deletarPorId(@PathVariable Long id, Authentication auth) {
+        itemPedidoService.deletar(id, auth);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

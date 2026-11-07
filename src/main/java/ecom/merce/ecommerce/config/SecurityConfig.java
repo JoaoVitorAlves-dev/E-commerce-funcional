@@ -48,13 +48,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/enderecos/buscar/{id}").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.POST, "/enderecos/adicionar").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/enderecos/atualizar").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/enderecos/deletar").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/enderecos/deletar/{id}").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/itempedidos/listar").authenticated()
                         .requestMatchers(HttpMethod.GET, "/itempedidos/buscar/{id}").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.POST, "/itempedidos/adicionar").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/itempedidos/atualizar/{id}").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/itempedidos/deletar").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/itempedidos/deletar/{id}").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/pagamentos/listar").authenticated()
                         .requestMatchers(HttpMethod.GET,"/pagamentos/buscar/{id}").hasAnyRole("ADMIN", "SELLER")

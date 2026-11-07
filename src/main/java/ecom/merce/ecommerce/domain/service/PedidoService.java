@@ -18,6 +18,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PedidoService {
@@ -29,9 +32,9 @@ public class PedidoService {
         return pedidoRepository.findByClienteEmail(auth.getName(), pageable).map(PedidoMapper::toDTO);
     }
 
-    public PedidoResponse buscarPorId(Long id) {
-        Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+    public PedidoResponse buscarPorId(Long id, Authentication auth) {
+        Pedido pedido = pedidoRepository.findByIdAndClienteEmail(id, auth.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return PedidoMapper.toDTO(pedido);
     }
 
@@ -44,7 +47,7 @@ public class PedidoService {
         }
 
         Pedido entity = PedidoMapper.toEntity(pedidoRequest, cliente);
-
+        entity.setTotal(BigDecimal.ZERO);
         if (entity.getStatus().equals(StatusPedido.CANCELADO)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
@@ -53,33 +56,23 @@ public class PedidoService {
     }
 
     public PedidoResponse atualizarPorId(Long id, PedidoRequest req, Authentication auth) {
-        Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new IdNotFoundException("Pedido não existe."));
+        Pedido pedido = pedidoRepository.findByIdAndClienteEmail(id, auth.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        Cliente cliente = clienteRepository.findById(req.clienteId())
-                .orElseThrow(() -> new IdNotFoundException("Cliente não existe."));
-
-        Pedido entity = PedidoMapper.toEntity(req, cliente);
-
-        if (!entity.getCliente().getEmail().equals(auth.getName())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        if (req.status() == StatusPedido.CANCELADO) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        if (!pedido.getCliente().getEmail().equals(auth.getName()) || req.status().equals(StatusPedido.CANCELADO)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
-
-        pedido.setCliente(cliente);
         pedido.setDataPedido(req.dataPedido());
         pedido.setStatus(req.status());
-        pedido.setTotal(req.total());
 
         return PedidoMapper.toDTO(pedidoRepository.save(pedido));
     }
 
-    public void deletar(Authentication auth) {
-        Pedido pedido = pedidoRepository.findByClienteEmail(auth.getName())
+    public void deletar(Long id, Authentication auth) {
+        Pedido pedido = pedidoRepository.findByIdAndClienteEmail(id, auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
         pedidoRepository.delete(pedido);
     }
 
