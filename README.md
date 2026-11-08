@@ -42,19 +42,25 @@ mvn test
 
 ## Autenticação
 
-Registre um cliente em `POST /clientes/registrar` e faça login em `POST /clientes/logar`. O login retorna um token JWT. Envie o token nas rotas protegidas:
+Registre um cliente em `POST /clientes/registrar` e faça login em `POST /clientes/logar`.
+
+O login retorna `accessToken` e `refreshToken`. Envie o access token nas rotas protegidas:
 
 ```http
 Authorization: Bearer <accessToken>
 ```
 
-As senhas são armazenadas com BCrypt. O token tem validade padrão de uma hora.
+O access token tem validade padrão de uma hora. O refresh token tem validade configurada em dias e é rotacionado quando usado. Guarde os tokens com segurança e nunca os publique no repositório.
+
+A rota de renovação implementada é `POST /clientes/refresh?token=<refreshToken>`. **Na configuração atual, essa rota também exige um access token válido**, então não é possível usá-la depois que o access token expira. Essa regra precisa ser ajustada para o fluxo de renovação funcionar após a expiração.
+
+As senhas são armazenadas com BCrypt.
 
 ## Principais rotas
 
 | Recurso | Rotas |
 |---|---|
-| Clientes | `/clientes/buscar`, `/clientes/buscar/{id}`, `/clientes/registrar`, `/clientes/logar`, `/clientes/atualizar`, `/clientes/deletar` |
+| Clientes | `/clientes/buscar`, `/clientes/buscar/{id}`, `/clientes/registrar`, `/clientes/logar`, `/clientes/refresh`, `/clientes/atualizar`, `/clientes/deletar` |
 | Produtos | `/produtos/listar`, `/produtos/buscar/{id}`, `/produtos/adicionar`, `/produtos/atualizar/{id}`, `/produtos/deletar/{id}` |
 | Categorias | `/categorias/listar`, `/categorias/buscar/{id}`, `/categorias/adicionar`, `/categorias/atualizar/{id}`, `/categorias/deletar/{id}` |
 | Pedidos | `/pedidos/listar`, `/pedidos/buscar/{id}`, `/pedidos/adicionar`, `/pedidos/atualizar/{id}`, `/pedidos/deletar/{id}` |
@@ -62,7 +68,7 @@ As senhas são armazenadas com BCrypt. O token tem validade padrão de uma hora.
 | Pagamentos | `/pagamentos/listar`, `/pagamentos/buscar/{id}`, `/pagamentos/adicionar`, `/pagamentos/atualizar/{id}`, `/pagamentos/deletar/{id}` |
 | Endereços | `/enderecos/listar`, `/enderecos/buscar/{id}`, `/enderecos/adicionar`, `/enderecos/atualizar/{id}`, `/enderecos/deletar/{id}` |
 
-As listagens aceitam paginação com `page`, `size` e `sort`. As permissões por perfil e as rotas públicas estão definidas em `SecurityConfig`.
+As listagens aceitam paginação com `page`, `size` e `sort`. As permissões por perfil estão definidas em `SecurityConfig`.
 
 ## Estrutura
 
