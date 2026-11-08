@@ -1,5 +1,6 @@
 package ecom.merce.ecommerce.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -74,6 +75,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/pedidos/deletar/{id}").authenticated()
 
                         .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(
+                        (request, response, exception) ->
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED)
+                ))
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
