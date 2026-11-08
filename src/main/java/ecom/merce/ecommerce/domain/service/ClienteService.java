@@ -9,6 +9,7 @@ import ecom.merce.ecommerce.dto.request.LoginRequest;
 import ecom.merce.ecommerce.dto.response.ClienteResponse;
 import ecom.merce.ecommerce.dto.response.TokenResponse;
 import ecom.merce.ecommerce.entity.Cliente;
+import ecom.merce.ecommerce.entity.RefreshToken;
 import ecom.merce.ecommerce.mapper.ClienteMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,15 @@ public class ClienteService {
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
+
+    public TokenResponse refresh(String token) {
+        RefreshToken refreshToken = refreshTokenService.validarERotacionar(token);
+
+        String access = tokenService.gerarToken(refreshToken.getCliente().getEmail());
+
+        return new TokenResponse(access, refreshToken.getToken());
+    }
 
     public TokenResponse login(LoginRequest req) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.email(), req.senha()));
@@ -41,7 +51,10 @@ public class ClienteService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Conta desativada.");
         }
 
-        return new TokenResponse(tokenService.gerarToken(req.email()));
+        String token = tokenService.gerarToken(req.email());
+        String refresh = refreshTokenService.criar(cliente).getToken();
+
+        return new TokenResponse(token, refresh);
     }
 
     public ClienteResponse buscar(Authentication auth) {
