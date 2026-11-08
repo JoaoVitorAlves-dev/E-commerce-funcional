@@ -23,6 +23,11 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenResponse> refresh(@RequestParam String token) {
+        return ResponseEntity.ok(clienteService.refresh(token));
+    }
+
     @GetMapping("/buscar")
     public ResponseEntity<ClienteResponse> buscar(Authentication authentication) {
         return ResponseEntity.ok(clienteService.buscar(authentication));

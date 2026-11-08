@@ -34,6 +34,7 @@ public class SecurityConfig {
                 .sessionManagement(ms -> ms.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
+                        .requestMatchers(HttpMethod.POST, "/clientes/refresh").authenticated()
                         .requestMatchers(HttpMethod.POST, "/clientes/registrar", "/clientes/logar").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/clientes/atualizar").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/clientes/deletar").authenticated()
