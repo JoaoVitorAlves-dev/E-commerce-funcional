@@ -55,7 +55,7 @@ public class ClienteController {
     @Transactional
     @DeleteMapping("/deletar")
     public ResponseEntity<Void> deletarPorId(Authentication auth) {
-        clienteService.deletar(auth);
+        clienteService.desativar(auth);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

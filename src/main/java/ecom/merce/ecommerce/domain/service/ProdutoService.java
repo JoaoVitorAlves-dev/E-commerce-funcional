@@ -30,7 +30,7 @@ public class ProdutoService {
     }
 
     public ProdutoResponse buscarPorId(Long id) {
-        Produto produto = produtoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+        Produto produto = produtoRepository.findByIdForUpdate(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
         return ProdutoMapper.toDTO(produto);
     }
 
@@ -41,7 +41,7 @@ public class ProdutoService {
     }
 
     public ProdutoResponse atualizarPorId(Long id, ProdutoRequest produtoRequest) {
-        produtoRepository.findById(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
+        produtoRepository.findByIdForUpdate(id).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
         Categoria categoria = categoriaRepository.findById(produtoRequest.categoriaId()).orElseThrow(() -> new IdNotFoundException("ID Não existe"));
         Produto entity = ProdutoMapper.toEntity(produtoRequest, categoria);
         entity.setId(id);
@@ -50,7 +50,7 @@ public class ProdutoService {
     }
 
     public void deletar(Long id) {
-        Produto produto = produtoRepository.findById(id)
+        Produto produto = produtoRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (itemPedidoRepository.existsByProdutoId(id)) {

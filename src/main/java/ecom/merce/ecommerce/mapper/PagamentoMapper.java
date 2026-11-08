@@ -11,9 +11,6 @@ public class PagamentoMapper {
     public Pagamento toEntity(PagamentoRequest pagamentoRequest) {
         Pagamento pagamento = new Pagamento();
         pagamento.setFormaDePagamento(pagamentoRequest.formaPagamento());
-        pagamento.setValor(pagamentoRequest.valor());
-        pagamento.setStatusPagamento(pagamentoRequest.statusPagamento());
-        pagamento.setDataPagamento(pagamentoRequest.dataPagamento());
         return pagamento;
     }
 

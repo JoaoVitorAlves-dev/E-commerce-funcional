@@ -46,7 +46,7 @@ public class ProdutoController {
     @Transactional
     @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Void> deletarPorId(@PathVariable Long id) {
-        produtoService.deletarPorId(id);
+        produtoService.deletar(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
