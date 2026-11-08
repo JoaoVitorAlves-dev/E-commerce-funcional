@@ -3,6 +3,7 @@ package ecom.merce.ecommerce.infra.controller;
 import ecom.merce.ecommerce.domain.service.ClienteService;
 import ecom.merce.ecommerce.dto.request.ClienteRequest;
 import ecom.merce.ecommerce.dto.request.LoginRequest;
+import ecom.merce.ecommerce.dto.request.RefreshTokenRequest;
 import ecom.merce.ecommerce.dto.response.ClienteResponse;
 import ecom.merce.ecommerce.dto.response.TokenResponse;
 import jakarta.transaction.Transactional;
@@ -24,8 +25,8 @@ public class ClienteController {
     private final ClienteService clienteService;
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refresh(@RequestParam String token) {
-        return ResponseEntity.ok(clienteService.refresh(token));
+    public ResponseEntity<TokenResponse> refresh(@RequestBody @Valid RefreshTokenRequest req) {
+        return ResponseEntity.ok(clienteService.refresh(req.refreshToken()));
     }
 
     @GetMapping("/buscar")
