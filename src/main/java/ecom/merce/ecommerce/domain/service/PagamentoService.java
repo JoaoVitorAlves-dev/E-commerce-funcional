@@ -44,6 +44,9 @@ public class PagamentoService {
 
         Pagamento entity = PagamentoMapper.toEntity(req);
         entity.setPedido(pedido);
+        entity.setValor(pedido.getTotal());
+        entity.setStatusPagamento(StatusPagamento.PENDENTE);
+        entity.setDataPagamento(LocalDateTime.now());
 
         return PagamentoMapper.toDTO(pagamentoRepository.save(entity));
     }

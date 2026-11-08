@@ -50,7 +50,7 @@ public class ItemPedidoService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        Produto produto = produtoRepository.findById(req.produtoId())
+        Produto produto = produtoRepository.findByIdForUpdate(req.produtoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (req.quantidade() == null || req.quantidade() <= 0) {
@@ -90,7 +90,7 @@ public class ItemPedidoService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
-        Produto produtoNovo = produtoRepository.findById(req.produtoId())
+        Produto produtoNovo = produtoRepository.findByIdForUpdate(req.produtoId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         if (req.quantidade() == null || req.quantidade() <= 0) {

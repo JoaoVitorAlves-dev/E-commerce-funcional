@@ -65,10 +65,8 @@ public class PedidoService {
         }
 
         Pedido entity = PedidoMapper.toEntity(pedidoRequest, cliente);
+        entity.setStatus(StatusPedido.ATIVO);
         entity.setTotal(BigDecimal.ZERO);
-        if (entity.getStatus().equals(StatusPedido.CANCELADO)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-        }
 
         return PedidoMapper.toDTO(pedidoRepository.save(entity));
     }

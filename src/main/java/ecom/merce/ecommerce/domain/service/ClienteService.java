@@ -88,7 +88,7 @@ public class ClienteService {
                 .orElseThrow(() -> new IdNotFoundException("Cliente não encontrado."));
 
         cliente.setAtivo(false);
-        clienteRepository.delete(cliente);
+        clienteRepository.save(cliente);
     }
 
 }
