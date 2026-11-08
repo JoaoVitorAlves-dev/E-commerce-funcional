@@ -2,10 +2,7 @@ package ecom.merce.ecommerce.entity;
 
 import ecom.merce.ecommerce.domain.enums.StatusPedido;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -16,6 +13,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Pedido {
 
     @Id
@@ -23,17 +21,17 @@ public class Pedido {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "cliente_id")
+    @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
 
-    @Column(name = "data_pedido")
+    @Column(name = "data_pedido", nullable = false)
     private LocalDate dataPedido;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
     private StatusPedido status;
 
-    @Column(name = "total")
+    @Column(name = "total", nullable = false)
     private BigDecimal total;
 
 }

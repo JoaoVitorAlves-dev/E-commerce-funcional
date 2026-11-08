@@ -1,71 +1,81 @@
 # E-commerce API
 
-API REST de estudo para operações de clientes, produtos, categorias, pedidos, itens de pedido, pagamentos e endereços. O projeto usa Java 17, Spring Boot, Spring Web MVC, Spring Data JPA, Hibernate, PostgreSQL, Flyway, Thymeleaf e Lombok.
+API REST para gerenciamento de clientes, produtos, categorias, pedidos, itens de pedido, pagamentos e endereços.
 
-## Modelo de domínio
+## Tecnologias
 
-- `Cliente` pode ter vários `Pedido`s.
-- `Pedido` contém vários `ItemPedido`s.
-- Cada `ItemPedido` associa um `Pedido` a um `Produto`.
-- O projeto também possui entidades `Categoria`, `Endereco` e `Pagamento`.
+- Java 17 e Spring Boot
+- Spring Web, Spring Data JPA e Spring Security
+- JWT e BCrypt
+- PostgreSQL e Flyway
+- Maven
 
 ## Requisitos
 
 - JDK 17
-- Maven 3.9 ou posterior
-- PostgreSQL acessível
+- Maven
+- PostgreSQL
 
-O repositório não inclui Maven Wrapper (`mvnw`) nem configuração versionada em `src/main/resources`. Configure a conexão JDBC e as propriedades exigidas pela aplicação no ambiente local antes de iniciar. Não armazene senhas no Git.
+## Configuração e execução
 
-## Executar
+Crie o banco `ecommerce` no PostgreSQL e configure as variáveis de ambiente:
+
+```bash
+export DB_USER=postgres
+export DB_PASSWORD=sua_senha
+export JWT_SECRET=uma_chave_com_pelo_menos_32_caracteres
+```
+
+Inicie a aplicação:
 
 ```bash
 mvn spring-boot:run
 ```
 
-## Testes
+A API fica disponível em `http://localhost:8080`.
+
+Para executar os testes:
 
 ```bash
 mvn test
 ```
 
-O teste atual, `ECommerceFuncionalApplicationTests.contextLoads`, verifica se o contexto Spring inicia. Ele precisa da configuração externa exigida pela aplicação, inclusive datasource PostgreSQL e migrações Flyway.
+## Autenticação
 
-## Autenticação e acesso
+Registre um cliente em `POST /clientes/registrar` e faça login em `POST /clientes/logar`. O login retorna um token JWT. Envie o token nas rotas protegidas:
 
-A configuração de segurança é stateless e usa BCrypt para codificar e comparar senhas. O cadastro de cliente (`POST /clientes`) e o login (`POST /clientes/login`) são públicos. Consultas `GET` em `/produtos/**` e `/categorias/**` também são públicas; as demais requisições exigem autenticação Spring Security.
+```http
+Authorization: Bearer <accessToken>
+```
 
-O endpoint de login valida e-mail e senha e devolve um `ClienteResponse`. **O código atual não emite JWT nem implementa autorização por roles**: embora a descrição do repositório mencione JWT e roles, `SecurityConfig` não configura filtro/token e não há serviço JWT no código. O acesso stateless às demais rotas requer que a autenticação seja fornecida por mecanismo configurado fora dos arquivos revisados.
+As senhas são armazenadas com BCrypt. O token tem validade padrão de uma hora.
 
-## Endpoints
-
-As listagens são paginadas com os parâmetros Spring Data `page`, `size` e `sort`.
+## Principais rotas
 
 | Recurso | Rotas |
 |---|---|
-| Clientes | `GET /clientes`, `GET /clientes/{id}`, `POST /clientes`, `POST /clientes/login`, `PATCH /clientes/{id}`, `DELETE /clientes/{id}` |
-| Produtos | `GET /produtos`, `GET /produtos/{id}`, `POST /produtos`, `PATCH /produtos/{id}`, `DELETE /produtos/{id}` |
-| Categorias | `GET /categorias`, `GET /categorias/{id}`, `POST /categorias`, `PATCH /categorias/{id}`, `DELETE /categorias/{id}` |
-| Pedidos | `GET /pedidos`, `GET /pedidos/{id}`, `POST /pedidos`, `PATCH /pedidos/{id}`, `DELETE /pedidos/{id}` |
-| Itens | `GET /itempedidos`, `GET /itempedidos/{id}`, `POST /itempedidos`, `PATCH /itempedidos/{id}`, `DELETE /itempedidos/{id}` |
-| Pagamentos | `GET /pagamentos`, `GET /pagamentos/{id}`, `POST /pagamentos`, `PATCH /pagamentos/{id}`, `DELETE /pagamentos/{id}` |
-| Endereços | `GET /enderecos`, `GET /enderecos/{id}`, `POST /enderecos`, `PATCH /enderecos/{id}`, `DELETE /enderecos/{id}` |
+| Clientes | `/clientes/buscar`, `/clientes/buscar/{id}`, `/clientes/registrar`, `/clientes/logar`, `/clientes/atualizar`, `/clientes/deletar` |
+| Produtos | `/produtos/listar`, `/produtos/buscar/{id}`, `/produtos/adicionar`, `/produtos/atualizar/{id}`, `/produtos/deletar/{id}` |
+| Categorias | `/categorias/listar`, `/categorias/buscar/{id}`, `/categorias/adicionar`, `/categorias/atualizar/{id}`, `/categorias/deletar/{id}` |
+| Pedidos | `/pedidos/listar`, `/pedidos/buscar/{id}`, `/pedidos/adicionar`, `/pedidos/atualizar/{id}`, `/pedidos/deletar/{id}` |
+| Itens de pedido | `/itempedidos/listar`, `/itempedidos/buscar/{id}`, `/itempedidos/adicionar`, `/itempedidos/atualizar/{id}`, `/itempedidos/deletar/{id}` |
+| Pagamentos | `/pagamentos/listar`, `/pagamentos/buscar/{id}`, `/pagamentos/adicionar`, `/pagamentos/atualizar/{id}`, `/pagamentos/deletar/{id}` |
+| Endereços | `/enderecos/listar`, `/enderecos/buscar/{id}`, `/enderecos/adicionar`, `/enderecos/atualizar/{id}`, `/enderecos/deletar/{id}` |
 
-Os corpos das requisições e respostas são definidos pelos DTOs em `src/main/java/ecom/merce/ecommerce/dto`.
+As listagens aceitam paginação com `page`, `size` e `sort`. As permissões por perfil e as rotas públicas estão definidas em `SecurityConfig`.
 
 ## Estrutura
 
 ```text
 src/main/java/ecom/merce/ecommerce/
-├── config/             # Configuração do Spring Security e BCrypt
-├── domain/             # Regras de negócio, enums e exceções
-├── dto/                # DTOs de request e response
-├── entity/             # Entidades JPA
-├── infra/controller/   # Endpoints REST
+├── config/              # Segurança e JWT
+├── domain/              # Serviços, repositórios, enums e exceções
+├── dto/                 # Objetos de requisição e resposta
+├── entity/              # Entidades JPA
+├── infra/controller/    # Endpoints REST
 └── mapper/              # Conversão entre entidades e DTOs
 ```
 
 ## Autor
 
-**João Vitor Alves**  
-[GitHub](https://github.com/JoaoVitorAlves-dev) · [Repositório do projeto](https://github.com/JoaoVitorAlves-dev/Marketplace-Delivery)
+**João Vitor de Jesus Alves** · [GitHub](https://github.com/JoaoVitorAlves-dev)

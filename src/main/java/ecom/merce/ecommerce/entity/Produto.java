@@ -1,10 +1,7 @@
 package ecom.merce.ecommerce.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -14,6 +11,7 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Produto {
 
     @Id
@@ -21,19 +19,19 @@ public class Produto {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "categoria_id")
+    @JoinColumn(name = "categoria_id", nullable = false)
     private Categoria categoria;
 
-    @Column(name = "nome")
+    @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "descricao")
+    @Column(name = "descricao", nullable = false)
     private String descricao;
 
-    @Column(name = "preco")
+    @Column(name = "preco", nullable = false)
     private BigDecimal preco;
 
-    @Column(name = "estoque")
+    @Column(name = "estoque", nullable = false)
     private Integer estoque;
 
 }
