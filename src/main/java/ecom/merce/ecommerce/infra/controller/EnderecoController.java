@@ -39,9 +39,9 @@ public class EnderecoController {
     }
 
     @Transactional
-    @PatchMapping("/atualizar")
-    public ResponseEntity<EnderecoResponse> atualizar(@RequestBody @Valid EnderecoRequest enderecoRequest, Authentication auth) {
-        return ResponseEntity.ok(enderecoService.atualizar(enderecoRequest, auth));
+    @PatchMapping("/atualizar/{id}")
+    public ResponseEntity<EnderecoResponse> atualizar(@PathVariable Long id, @RequestBody @Valid EnderecoRequest enderecoRequest, Authentication auth) {
+        return ResponseEntity.ok(enderecoService.atualizar(id, enderecoRequest, auth));
     }
 
     @Transactional

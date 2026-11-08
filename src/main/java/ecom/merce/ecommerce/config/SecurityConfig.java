@@ -45,9 +45,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/categorias/deletar/{id}").hasAnyRole("ADMIN", "SELLER")
 
                         .requestMatchers(HttpMethod.GET, "/enderecos/listar").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/enderecos/buscar/{id}").hasAnyRole("ADMIN", "SELLER")
+                        .requestMatchers(HttpMethod.GET, "/enderecos/buscar/{id}").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/enderecos/adicionar").authenticated()
-                        .requestMatchers(HttpMethod.PATCH, "/enderecos/atualizar").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/enderecos/atualizar/{id}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/enderecos/deletar/{id}").authenticated()
 
                         .requestMatchers(HttpMethod.GET, "/itempedidos/listar").authenticated()

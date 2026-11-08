@@ -47,8 +47,8 @@ public class EnderecoService {
         return EnderecoMapper.toDTO(save);
     }
 
-    public EnderecoResponse atualizar(EnderecoRequest req, Authentication auth) {
-        Endereco endereco = enderecoRepository.findByClienteEmail(auth.getName())
+    public EnderecoResponse atualizar(Long id, EnderecoRequest req, Authentication auth) {
+        Endereco endereco = enderecoRepository.findByIdAndClienteEmail(id, auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         endereco.setRua(req.rua());

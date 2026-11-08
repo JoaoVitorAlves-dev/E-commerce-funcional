@@ -1,5 +1,6 @@
 package ecom.merce.ecommerce.domain.service;
 
+import ecom.merce.ecommerce.domain.enums.StatusPagamento;
 import ecom.merce.ecommerce.domain.exceptions.IdNotFoundException;
 import ecom.merce.ecommerce.domain.repository.PagamentoRepository;
 import ecom.merce.ecommerce.domain.repository.PedidoRepository;
@@ -17,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -61,17 +63,17 @@ public class PagamentoService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
-        pagamento.setDataPagamento(req.dataPagamento());
+        pagamento.setDataPagamento(LocalDateTime.now());
         pagamento.setFormaDePagamento(req.formaPagamento());
         pagamento.setPedido(pedido);
-        pagamento.setStatusPagamento(req.statusPagamento());
-        pagamento.setValor(req.valor());
+        pagamento.setStatusPagamento(StatusPagamento.PENDENTE);
 
         return PagamentoMapper.toDTO(pagamentoRepository.save(pagamento));
     }
 
     public void deletar(Long id) {
-        pagamentoRepository.findById(id).ifPresent(pagamentoRepository::delete);
+        Pagamento pagamento = pagamentoRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        pagamentoRepository.delete(pagamento);
     }
 
 }

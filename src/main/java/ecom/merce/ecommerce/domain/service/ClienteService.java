@@ -34,6 +34,13 @@ public class ClienteService {
     public TokenResponse login(LoginRequest req) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.email(), req.senha()));
 
+        Cliente cliente = clienteRepository.findByEmail(req.email())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email ou senha inválidos."));
+
+        if (!cliente.isAtivo()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Conta desativada.");
+        }
+
         return new TokenResponse(tokenService.gerarToken(req.email()));
     }
 
@@ -76,9 +83,11 @@ public class ClienteService {
         return ClienteMapper.toDTO(clienteRepository.save(cliente));
     }
 
-    public void deletar(Authentication auth) {
+    public void desativar(Authentication auth) {
         Cliente cliente = clienteRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new IdNotFoundException("Cliente não encontrado."));
+
+        cliente.setAtivo(false);
         clienteRepository.delete(cliente);
     }
 

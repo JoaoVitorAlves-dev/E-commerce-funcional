@@ -2,6 +2,7 @@ package ecom.merce.ecommerce.domain.service;
 
 import ecom.merce.ecommerce.domain.exceptions.IdNotFoundException;
 import ecom.merce.ecommerce.domain.repository.CategoriaRepository;
+import ecom.merce.ecommerce.domain.repository.ProdutoRepository;
 import ecom.merce.ecommerce.dto.request.CategoriaRequest;
 import ecom.merce.ecommerce.dto.response.CategoriaResponse;
 import ecom.merce.ecommerce.entity.Categoria;
@@ -10,13 +11,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
 public class CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
+    private final ProdutoRepository produtoRepository;
 
     public Page<CategoriaResponse> listar(@PageableDefault(sort = "nome", size = 10) Pageable pageable) {
         return categoriaRepository.findAllBy(pageable).map(CategoriaMapper::toDTO);
@@ -41,7 +45,14 @@ public class CategoriaService {
     }
 
     public void deletarPorId(Long id) {
-        categoriaRepository.deleteById(id);
+        Categoria categoria = categoriaRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (produtoRepository.existsByCategoriaId(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível excluir uma categoria que contém produtos.");
+        }
+
+        categoriaRepository.delete(categoria);
     }
 
 }

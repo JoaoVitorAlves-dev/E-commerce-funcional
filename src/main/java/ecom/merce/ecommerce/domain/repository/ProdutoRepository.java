@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProdutoRepository extends JpaRepository<Produto, Long> {
     Page<Produto> findAllBy(Pageable pageable);
+
+    boolean existsByCategoriaId(Long id);
 }

@@ -13,7 +13,6 @@ public class PedidoMapper {
         Pedido pedido = new Pedido();
         pedido.setCliente(cliente);
         pedido.setDataPedido(pedidoRequest.dataPedido());
-        pedido.setStatus(pedidoRequest.status());
         return pedido;
     }
 

@@ -4,6 +4,7 @@ import ecom.merce.ecommerce.domain.enums.StatusPedido;
 import ecom.merce.ecommerce.domain.exceptions.IdNotFoundException;
 import ecom.merce.ecommerce.domain.repository.ClienteRepository;
 import ecom.merce.ecommerce.domain.repository.ItemPedidoRepository;
+import ecom.merce.ecommerce.domain.repository.PagamentoRepository;
 import ecom.merce.ecommerce.domain.repository.PedidoRepository;
 import ecom.merce.ecommerce.dto.request.PedidoRequest;
 import ecom.merce.ecommerce.dto.response.PedidoResponse;
@@ -27,6 +28,7 @@ public class PedidoService {
     private final PedidoRepository pedidoRepository;
     private final ClienteRepository clienteRepository;
     private final ItemPedidoRepository itemPedidoRepository;
+    private final PagamentoRepository pagamentoRepository;
 
     private BigDecimal calcularTotal(Long pedidoId) {
         return itemPedidoRepository.findAllByPedidoId(pedidoId).stream()
@@ -75,13 +77,12 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findByIdAndClienteEmail(id, auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (req.status() == StatusPedido.CANCELADO) {
+        if (pedido.getStatus() == StatusPedido.CANCELADO) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
         pedido.setTotal(calcularTotal(pedido.getId()));
         pedido.setDataPedido(req.dataPedido());
-        pedido.setStatus(req.status());
 
         return PedidoMapper.toDTO(pedidoRepository.save(pedido));
     }
@@ -89,6 +90,10 @@ public class PedidoService {
     public void deletar(Long id, Authentication auth) {
         Pedido pedido = pedidoRepository.findByIdAndClienteEmail(id, auth.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (itemPedidoRepository.existsByPedidoId(id) || pagamentoRepository.existsByPedidoId(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível excluir um pedido com itens ou pagamento. Cancele o pedido.");
+        }
 
         pedidoRepository.delete(pedido);
     }

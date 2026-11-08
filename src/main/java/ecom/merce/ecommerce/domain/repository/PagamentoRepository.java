@@ -14,4 +14,6 @@ public interface PagamentoRepository extends JpaRepository<Pagamento, Long> {
     Page<Pagamento> findByPedidoClienteEmail(String email, Pageable pageable);
 
     Optional<Pagamento> findByIdAndPedidoClienteEmail(Long id, String name);
+
+    boolean existsByPedidoId(Long id);
 }

@@ -2,6 +2,7 @@ package ecom.merce.ecommerce.domain.service;
 
 import ecom.merce.ecommerce.domain.exceptions.IdNotFoundException;
 import ecom.merce.ecommerce.domain.repository.CategoriaRepository;
+import ecom.merce.ecommerce.domain.repository.ItemPedidoRepository;
 import ecom.merce.ecommerce.domain.repository.ProdutoRepository;
 import ecom.merce.ecommerce.dto.request.ProdutoRequest;
 import ecom.merce.ecommerce.dto.response.ProdutoResponse;
@@ -12,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +23,7 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
     private final CategoriaRepository categoriaRepository;
+    private final ItemPedidoRepository itemPedidoRepository;
 
     public Page<ProdutoResponse> listar(@PageableDefault(sort = "nome")Pageable pageable) {
         return produtoRepository.findAllBy(pageable).map(ProdutoResponse::new);
@@ -45,8 +49,15 @@ public class ProdutoService {
         return ProdutoMapper.toDTO(save);
     }
 
-    public void deletarPorId(Long id) {
-        produtoRepository.deleteById(id);
+    public void deletar(Long id) {
+        Produto produto = produtoRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (itemPedidoRepository.existsByProdutoId(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Não é possível excluir um produto que já aparece em pedidos.");
+        }
+
+        produtoRepository.delete(produto);
     }
 
 }

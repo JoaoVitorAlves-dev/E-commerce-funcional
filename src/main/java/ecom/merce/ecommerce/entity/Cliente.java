@@ -34,4 +34,8 @@ public class Cliente {
     @Enumerated(EnumType.STRING)
     @Column(name = "roles", nullable = false)
     private RolesCliente roles;
+
+    @Column(name = "ativo", nullable = false)
+    private boolean ativo = true;
+
 }
